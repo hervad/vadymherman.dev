@@ -1,5 +1,7 @@
 # CI: build the site exactly like `make check` does on your laptop.
 # Deploy is added in step 1.4 (separate job, main branch only).
+# Third-party actions are pinned to a full commit SHA (a tag can be moved, a SHA can't);
+# Dependabot (.github/dependabot.yml) opens a PR when a newer version is released.
 name: CI
 
 on:
@@ -17,12 +19,16 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04   # pinned: ubuntu-latest moves to a new release without warning
+    timeout-minutes: 10     # the build takes seconds; a hung job shouldn't run for 6 hours
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false   # the build never pushes, so don't leave a token in .git/config
 
+      # $GITHUB_ENV accepts only NAME=value lines; a "# comment" line fails the job.
       - name: Load pinned tool versions
-        run: cat versions.env >> "$GITHUB_ENV"
+        run: grep -E '^[A-Za-z_][A-Za-z0-9_]*=' versions.env >> "$GITHUB_ENV"
 
       - name: Install Hugo ${{ env.HUGO_VERSION }}
         run: ./scripts/install-tools.sh
@@ -33,7 +39,7 @@ jobs:
         run: make check
 
       - name: Upload built site
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: public
           path: public/

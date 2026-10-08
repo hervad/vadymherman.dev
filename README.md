@@ -1,5 +1,7 @@
 # Personal site
 
+[![CI](https://github.com/hervad/vadymherman.dev/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/hervad/vadymherman.dev/actions/workflows/ci.yml)
+
 Source for my personal website and blog: a Hugo static site, self-hosted on an AlmaLinux 10 VPS
 behind Caddy, provisioned with Ansible and deployed by GitHub Actions.
 
@@ -18,3 +20,8 @@ make check   # strict build, the same one CI runs
 ## Status
 
 Work is tracked in [docs/roadmap.md](docs/roadmap.md).
+
+## License
+
+Code (templates, CSS, scripts, Ansible, CI) is [MIT](LICENSE). Writing under `content/` is
+[CC BY 4.0](LICENSE-CONTENT): reuse it freely, with credit and a link.

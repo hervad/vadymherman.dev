@@ -1,0 +1,11 @@
+Copyright (c) 2026 Vadym Herman
+
+The written content of this site — everything under content/ (posts, pages and the images
+inside their page bundles) — is licensed under the Creative Commons Attribution 4.0
+International License (CC BY 4.0): https://creativecommons.org/licenses/by/4.0/
+
+You may share and adapt it for any purpose, provided you give appropriate credit (name and a
+link to the original), link to the license, and indicate if changes were made.
+
+Everything else in this repository (templates, CSS, scripts, Ansible, CI) is under the MIT
+License in the LICENSE file.
