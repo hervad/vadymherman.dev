@@ -2,13 +2,16 @@
 # so the "how do I build this?" answer never drifts.
 HUGO := ./.bin/hugo
 
-.PHONY: help tools serve build check clean i18n-check ansible-lint ansible-check
+.PHONY: help tools tool-hashes serve build check clean i18n-check ansible-lint ansible-check
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
 
 tools: ## Install pinned Hugo into ./.bin
 	./scripts/install-tools.sh
+
+tool-hashes: ## Print SHA-256 lines for versions.env from the official release checksums
+	./scripts/tool-hashes.sh
 
 serve: ## Local preview with drafts at http://localhost:1313
 	$(HUGO) server --buildDrafts --navigateToChanged

@@ -8,7 +8,7 @@ what you learn, and how we know it's done. Steps marked **(you)** are things onl
 
 ## Phase 0: Set up the workshop
 
-- [ ] **0.1 Orientation.** `make tools` and `make check` pass on Fedora; `git init`, first commit.
+- [x] **0.1 Orientation.** `make tools` and `make check` pass on Fedora; `git init`, first commit.
   Claude walks through the repo layout and how a Markdown file becomes an HTML page.
   - Learn: Hugo's build pipeline (content → templates → public/), why tool versions are pinned.
   - Done when: `make serve` shows the site at localhost:1313 and you can explain the folders.
@@ -19,6 +19,8 @@ what you learn, and how we know it's done. Steps marked **(you)** are things onl
   - Done when: the CI badge is green and the `public` artifact downloads.
   - Research fixes: actions v4 → current, pinned by commit SHA; `persist-credentials: false`;
     pin `ubuntu-24.04`; `timeout-minutes`; add `.github/dependabot.yml` for github-actions.
+    Unverified (found in 0.1): `cat versions.env >> "$GITHUB_ENV"` may reject the `#` comment
+    lines; if the first run fails there, append only `NAME=value` lines.
 - [ ] **0.3 Domain + VPS. (you)** Register the domain (Cloudflare Registrar, .dev), order the VPS
   (OVHcloud VPS-1, Warsaw, AlmaLinux 10), add your SSH key. Claude then replaces every placeholder.
   - Learn: DNS records (A, AAAA, CAA), what a registrar vs a DNS host does.
