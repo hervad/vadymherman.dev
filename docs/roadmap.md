@@ -37,6 +37,8 @@ what you learn, and how we know it's done. Steps marked **(you)** are things onl
   scale, layout wireframe), you pick, then it's implemented in main.css. Add a no-flash dark/light
   toggle and a /styleguide/ page (draft, not in nav) showing every element in both themes.
   - Done when: Lighthouse accessibility 100, both themes checked, CSS < 14 KB.
+  - Design decided 2026-10-08 (Signal): build from docs/design-spec.md; lab in docs/design/.
+    Needs ADR 0008 (self-hosted Geist, Geist Mono, JetBrains Mono) before adding fonts.
   - Research fixes: home page `<h1>`; Chroma CSS (dark styles keyed to the toggle's class);
     monospace size inside `pre`; `:focus-visible` beyond links; nav wraps; reduced-motion covers
     pseudo-elements. Direction: bearblog/danluu weight, tonsky/brandur personality.

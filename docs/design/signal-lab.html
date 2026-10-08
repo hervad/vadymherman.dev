@@ -1,0 +1,978 @@
+<title>Signal &amp; Workbench</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400..800&family=Geist:wght@400..800&family=Geist+Mono:wght@400..800&family=Space+Grotesk:wght@400..700&family=IBM+Plex+Sans:wght@400..700&family=IBM+Plex+Mono:wght@400;700&family=Inter+Tight:wght@400..800&family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Martian+Mono:wght@400..800&display=swap">
+<style>
+/* ---------- Comparison board (not part of the real site) ---------- */
+:root{
+  --b-bg:#eceef1; --b-panel:#f8f9fb; --b-ink:#16181c; --b-muted:#5b626e; --b-line:#cdd2d9; --b-focus:#2346c4; --b-pick:#9a5600;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans","Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SFMono-Regular","Cascadia Code","DejaVu Sans Mono",Menlo,Consolas,monospace;
+  --jbm:"JetBrains Mono",ui-monospace,"SFMono-Regular","DejaVu Sans Mono",Menlo,Consolas,monospace;
+  --serif:"Iowan Old Style","Charter","Bitstream Charter","Source Serif Pro",Georgia,serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){ --b-bg:#0b0c0e; --b-panel:#121418; --b-ink:#e8eaee; --b-muted:#9aa1ad; --b-line:#2a2e35; --b-focus:#93a9ff; --b-pick:#ffb340; color-scheme:dark; }
+}
+:root[data-theme="dark"]{ --b-bg:#0b0c0e; --b-panel:#121418; --b-ink:#e8eaee; --b-muted:#9aa1ad; --b-line:#2a2e35; --b-focus:#93a9ff; --b-pick:#ffb340; color-scheme:dark; }
+
+*,*::before,*::after{box-sizing:border-box}
+body{background:var(--b-bg);color:var(--b-ink);font:15px/1.55 var(--sans);padding-inline:clamp(16px,3vw,40px);padding-block:32px 64px}
+.board{max-width:1440px;margin:0 auto;display:grid;gap:48px}
+.board-head{display:grid;gap:14px;max-width:74ch}
+.board-kicker{font:600 12px/1.2 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--b-muted);margin:0}
+.board-head h1{font-size:clamp(1.7rem,1.2rem + 1.6vw,2.4rem);line-height:1.1;letter-spacing:-.02em;margin:0;text-wrap:balance}
+.board-head p{margin:0;color:var(--b-muted)}
+.facts{display:flex;flex-wrap:wrap;gap:8px 28px;margin:6px 0 0;padding:0}
+.facts div{display:grid;gap:2px}
+.facts dt{font:600 11px/1.2 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--b-muted)}
+.facts dd{margin:0;font:600 15px/1.3 var(--mono);font-variant-numeric:tabular-nums}
+
+.direction{display:grid;gap:20px}
+.dir-head{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px 24px;border-top:1px solid var(--b-line);padding-top:20px}
+.dir-head h2{margin:0;font-size:1.35rem;letter-spacing:-.01em}
+.dir-head p{margin:4px 0 0;color:var(--b-muted);max-width:64ch}
+.chosen{font:700 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--b-pick);border:1px solid currentColor;border-radius:4px;padding:3px 6px;margin-left:8px;vertical-align:3px}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--b-line);border-radius:8px;overflow:hidden;background:var(--b-panel)}
+.seg button{font:600 13px/1 var(--sans);color:var(--b-muted);background:none;border:0;padding:9px 14px;cursor:pointer}
+.seg button+button{border-left:1px solid var(--b-line)}
+.seg button[aria-pressed="true"]{background:var(--b-ink);color:var(--b-bg)}
+button:focus-visible,a:focus-visible,input:focus-visible+span{outline:2px solid var(--b-focus);outline-offset:2px}
+
+/* lab controls */
+.lab{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px;background:var(--b-panel);border:1px solid var(--b-line);border-radius:10px;padding:16px}
+.lab fieldset{border:0;margin:0;padding:0;display:grid;gap:8px;align-content:start}
+.lab fieldset.wide{grid-column:1/-1}
+.lab legend{font:600 11px/1.2 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--b-muted);padding:0;margin-bottom:8px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opts label{position:relative;cursor:pointer}
+.opts input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.opts span{display:block;font:600 13px/1 var(--sans);padding:8px 11px;border:1px solid var(--b-line);border-radius:6px;color:var(--b-muted);background:var(--b-bg)}
+.opts input:checked+span{color:var(--b-bg);background:var(--b-ink);border-color:var(--b-ink)}
+.lab .hint{margin:0;font-size:13px;color:var(--b-muted);line-height:1.45}
+.lab .hint b{color:var(--b-ink);font-weight:600}
+.opts span i{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--sw);margin-right:7px;vertical-align:-1px;box-shadow:0 0 0 1px rgba(0,0,0,.25)}
+.opts input[type="color"]{position:static;opacity:1;width:40px;height:32px;padding:2px;border:1px solid var(--b-line);border-radius:6px;background:var(--b-bg);cursor:pointer}
+.check{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--b-ink);cursor:pointer}
+.check input{width:16px;height:16px;accent-color:var(--b-ink)}
+.replay{justify-self:start;font:600 13px/1 var(--sans);padding:8px 12px;border-radius:6px;border:1px solid var(--b-pick);color:var(--b-pick);background:none;cursor:pointer}
+
+.frames{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,520px),1fr));gap:24px;align-items:start}
+.frame{margin:0;display:grid;gap:8px}
+.frame figcaption{font:600 12px/1.2 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--b-muted);display:flex;justify-content:space-between;gap:12px}
+.frame figcaption em{font-style:normal;text-transform:none;letter-spacing:0;font-weight:500}
+.browser{border:1px solid var(--b-line);border-radius:10px;overflow:hidden;background:var(--b-panel)}
+.url{font:12px/1 var(--mono);color:var(--b-muted);padding:10px 14px;border-bottom:1px solid var(--b-line);display:flex;gap:10px;align-items:center}
+.url::before{content:"";width:34px;height:8px;background:radial-gradient(circle,var(--b-line) 3.5px,transparent 4px) 0 0/12px 8px repeat-x;flex:none}
+.site{container-type:inline-size}
+
+.mix{display:grid;gap:14px}
+.mix h2{margin:0;font-size:1.35rem}
+.mix p{margin:0;color:var(--b-muted);max-width:70ch}
+.mix-table{overflow-x:auto;border:1px solid var(--b-line);border-radius:10px;background:var(--b-panel)}
+.mix table{border-collapse:collapse;width:100%;min-width:560px}
+.mix th,.mix td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--b-line);vertical-align:top}
+.mix tr:last-child td{border-bottom:0}
+.mix th{font:600 11px/1.2 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--b-muted)}
+.mix td:nth-child(2){font:600 13px/1.4 var(--mono);white-space:nowrap}
+.next{border-left:3px solid var(--b-pick);padding:4px 0 4px 14px}
+.aside-dir{opacity:.92}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+
+<style id="css-a">
+/* ================= A · SIGNAL ================= */
+.a-site{
+  --t-dark:0; --acc-l:#9a5600; --acc-d:#ffb340; --lede-l:#0e6e58; --lede-d:#7ee3c6; --a-lede-pick:var(--lede-l);
+  --a-bg:#f5f6f8; --a-surface:#ffffff; --a-ink:#121418; --a-muted:#5a6270; --a-line:#d9dde3;
+  --a-accent:var(--acc-l); --a-fill:var(--acc-l); --a-chip:transparent; --a-chip-ink:var(--a-accent); --a-chip-pad:0; --a-ul:1.5px; --a-hl-pct:30%; --a-term-bg:#11141a; --a-term-ink:#d9dee6; --a-term-dim:#7d8696; --a-ok:#1f7a4d;
+  --a-display:var(--sans); --a-label:var(--mono); --a-body:var(--sans);
+  position:relative;overflow:hidden;
+  background:var(--a-bg);color:var(--a-ink);font:16px/1.6 var(--a-body);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .a-site[data-mode="auto"]{
+    --a-bg:#0d1014; --a-surface:#141820; --a-ink:#e7eaef; --a-muted:#8d95a3; --a-line:#232a34;
+    --a-accent:var(--acc-d); --a-fill:var(--acc-d); --a-chip:transparent; --a-chip-ink:var(--acc-d); --a-chip-pad:0; --a-ul:1.5px; --a-hl-pct:26%; --a-lede-pick:var(--lede-d); --t-dark:1; --a-term-bg:#07090c; --a-term-ink:#d9dee6; --a-term-dim:#6f7888; --a-ok:#5fd39a; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"] .a-site[data-mode="auto"], .a-site[data-mode="dark"]{
+  --a-bg:#0d1014; --a-surface:#141820; --a-ink:#e7eaef; --a-muted:#8d95a3; --a-line:#232a34;
+  --a-accent:var(--acc-d); --a-fill:var(--acc-d); --a-chip:transparent; --a-chip-ink:var(--acc-d); --a-chip-pad:0; --a-ul:1.5px; --a-hl-pct:26%; --a-lede-pick:var(--lede-d); --t-dark:1; --a-term-bg:#07090c; --a-term-ink:#d9dee6; --a-term-dim:#6f7888; --a-ok:#5fd39a; color-scheme:dark;
+}
+/* font pairings: display (headline) / body / label+code */
+.a-site{--a-h1-w:850;--a-h1-track:-.045em;--a-h1-scale:1}
+.a-site[data-font="geist"]{--a-display:"Geist",var(--sans);--a-body:"Geist",var(--sans);--a-label:"Geist Mono",var(--mono);--a-h1-w:800;--a-h1-track:-.05em}
+.a-site[data-font="space"]{--a-display:"Space Grotesk",var(--sans);--a-label:var(--jbm);--a-h1-w:700;--a-h1-track:-.045em}
+.a-site[data-font="plex"]{--a-display:"IBM Plex Sans",var(--sans);--a-body:"IBM Plex Sans",var(--sans);--a-label:"IBM Plex Mono",var(--mono);--a-h1-w:700;--a-h1-track:-.04em}
+.a-site[data-font="inter"]{--a-display:"Inter Tight",var(--sans);--a-label:var(--jbm);--a-h1-w:800;--a-h1-track:-.045em}
+.a-site[data-font="bricolage"]{--a-display:"Bricolage Grotesque",var(--sans);--a-label:"Geist Mono",var(--mono);--a-h1-w:800;--a-h1-track:-.04em}
+.a-site[data-font="jbm-head"]{--a-display:var(--jbm);--a-label:var(--jbm);--a-h1-w:800;--a-h1-track:-.055em;--a-h1-scale:.86}
+.a-site[data-font="martian"]{--a-display:"Martian Mono",var(--mono);--a-label:"Martian Mono",var(--mono);--a-h1-w:800;--a-h1-track:-.07em;--a-h1-scale:.74}
+.a-site[data-font="martian"] .a-tele,.a-site[data-font="martian"] .a-h2,.a-site[data-font="martian"] .a-label{letter-spacing:.02em}
+
+.a-site a{color:inherit;text-decoration:none}
+.a-tele{display:flex;flex-wrap:wrap;gap:4px 18px;padding:8px 24px;border-bottom:1px solid var(--a-line);font:11px/1.4 var(--a-label);color:var(--a-muted);letter-spacing:.02em}
+.a-tele b{font-weight:500;color:var(--a-ink);opacity:.55;margin-right:6px;text-transform:uppercase;letter-spacing:.08em}
+.a-ok{margin-left:auto;color:var(--a-ok);display:inline-flex;align-items:center;gap:6px}
+.a-ok i{width:7px;height:7px;border-radius:50%;background:currentColor;animation:a-pulse 2.4s ease-in-out infinite}
+@keyframes a-pulse{50%{opacity:.25}}
+.a-nav{display:flex;align-items:center;gap:20px;padding:18px 24px}
+.a-mark{font:800 15px/1 var(--a-label);letter-spacing:-.02em}
+.a-mark span{color:var(--a-chip-ink);background:var(--a-chip);padding:0 calc(var(--a-chip-pad) * .4)}
+.a-nav nav{display:flex;gap:18px;margin-left:auto;font-size:14px}
+.mode-btn{font:14px/1 var(--mono);width:30px;height:30px;border-radius:50%;border:1px solid var(--a-line);background:none;color:inherit;cursor:pointer}
+.a-hero{padding:12px 24px 36px;display:grid;gap:14px;border-bottom:1px solid var(--a-line)}
+.a-label{margin:0;font:600 11px/1.3 var(--a-label);letter-spacing:.12em;text-transform:uppercase;color:var(--a-chip-ink);background:var(--a-chip);padding:var(--a-chip-pad) calc(var(--a-chip-pad) * 2);justify-self:start;width:fit-content}
+.a-h1{margin:0;font-family:var(--a-display);font-weight:var(--a-h1-w);font-size:calc(clamp(2.6rem,13cqi,5.4rem) * var(--a-h1-scale));line-height:.95;letter-spacing:var(--a-h1-track);text-wrap:balance}
+.ln{display:block;overflow:hidden;padding-bottom:.04em}
+.ln>span{display:block}
+.a-lede{margin:0;max-width:44ch;color:var(--a-muted);font-size:17px}
+/* selected row: description under the title gets a second, calmer colour */
+.a-site[data-row~="select"][data-rowdesc="color"] .a-list a:hover .a-desc,
+.a-site[data-row~="select"][data-rowdesc="color"] .a-list a:hover .a-title{color:var(--a-lede-pick)}
+.a-site .a-desc{transition:color .15s ease}
+/* Select + Readout: the flipped value matches the selected title colour */
+.a-site[data-row~="select"][data-row~="readout"][data-rowdesc="color"] .a-list a:hover .swap .alt{color:var(--a-lede-pick)}
+/* menu font (Writing / Projects / About) */
+.a-site[data-nav="caps"] .a-nav nav{font-family:var(--a-label);font-size:13.5px}
+.a-site[data-nav="caps"] .a-nav nav{font-family:var(--a-label);font-size:11.5px;font-weight:500;letter-spacing:.1em;text-transform:uppercase}
+.a-site[data-nav="path"] .a-nav nav{font-family:var(--a-label);font-size:13.5px;text-transform:lowercase;gap:14px}
+.a-site[data-nav="path"]:not([data-link="bracket"]) .a-nav nav a::before{content:"/";color:var(--a-muted)}
+.a-site[data-nav="system"] .a-nav nav{font-family:var(--sans)}
+/* ---- theme switch variants (only the active one is shown) ---- */
+.mode-btn .tg{display:none}
+.a-site[data-toggle="round"] .tg-round,.a-site[data-toggle="bulb"] .tg-bulb,.a-site[data-toggle="hang"] .tg-hang,
+.a-site[data-toggle="eclipse"] .tg-eclipse{display:block}
+.a-site[data-toggle="text"] .tg-text{display:inline-flex}
+.a-site:not([data-toggle="round"]) .mode-btn{border:0;width:auto;height:auto;border-radius:6px;padding:3px;display:inline-grid;place-items:center}
+.mode-btn:focus-visible{outline:2px solid var(--a-accent);outline-offset:3px}
+.tg svg,.tg-bulb,.tg-eclipse{overflow:visible}
+/* bulb: on in the light theme, off in the dark theme */
+.tg-bulb{width:26px;height:26px}
+.bulb .glow{fill:var(--acc-d);opacity:calc((1 - var(--t-dark)) * .35);transition:opacity .35s ease}
+.bulb .glass{fill:color-mix(in srgb,var(--acc-d) calc((1 - var(--t-dark)) * 100%),transparent);stroke:currentColor;stroke-width:1.4;transition:fill .35s ease}
+.bulb .fil{fill:none;stroke:currentColor;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round}
+.bulb .base{fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round}
+/* hanging bulb on a cord from the build strip */
+.tg-hang{position:relative;width:24px;height:30px;margin-top:-20px}
+.tg-hang .cord{position:absolute;left:50%;top:-6px;width:1px;height:16px;background:var(--a-muted);transform-origin:top}
+.tg-hang svg{position:absolute;left:0;top:9px;width:24px;height:24px;transform-origin:12px -10px}
+.mode-btn.pull .tg-hang .cord{animation:a-cord .7s cubic-bezier(.3,1.6,.5,1)}
+.mode-btn.pull .tg-hang svg{animation:a-tug .7s cubic-bezier(.3,1.6,.5,1)}
+@keyframes a-cord{30%{transform:scaleY(1.6)}100%{transform:none}}
+@keyframes a-tug{30%{transform:translateY(9px)}60%{transform:translateY(-2px) rotate(4deg)}80%{transform:rotate(-2deg)}100%{transform:none}}
+/* eclipse: a moon slides over the sun, rays retract */
+.tg-eclipse{width:24px;height:24px}
+.tg-eclipse .core{fill:currentColor}
+.tg-eclipse .bite{transform:translate(calc(var(--t-dark) * -9px),calc(var(--t-dark) * 5px));transition:transform .45s cubic-bezier(.4,0,.2,1)}
+.tg-eclipse .rays{stroke:currentColor;stroke-width:1.6;stroke-linecap:round;transform-origin:12px 12px;transform:rotate(calc(var(--t-dark) * 45deg)) scale(calc(1 - var(--t-dark)));transition:transform .45s cubic-bezier(.4,0,.2,1)}
+
+/* MODE/DARK text, in the label font */
+.tg-text{align-items:baseline;gap:1px;font:500 11.5px/1 var(--a-label);letter-spacing:.1em;text-transform:uppercase;padding:6px 4px}
+.tg-text b{font-weight:500;color:var(--a-muted)}
+.tg-text .sw{display:inline-grid}
+.tg-text .sw>span{grid-area:1/1;transition:opacity .22s ease,transform .22s ease}
+.tg-text .d{opacity:var(--t-dark);transform:translateY(calc((1 - var(--t-dark)) * 60%))}
+.tg-text .l{opacity:calc(1 - var(--t-dark));transform:translateY(calc(var(--t-dark) * -60%))}
+.mode-btn:hover .tg-text .sw>span{color:var(--a-accent)}
+/* circular reveal (View Transitions): only the custom circle, no cross-fade */
+::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}
+
+/* ---- light-mode accent treatment (dark mode keeps the accent as text colour) ---- */
+/* specificity 0,3,0: loses to the dark blocks (0,4,0) in auto mode, so dark mode is never affected */
+.a-site[data-lightacc="marker"]:not([data-mode="dark"]){
+  --a-accent:var(--a-ink); --a-fill:var(--acc-d); --a-chip:var(--acc-d); --a-chip-ink:#121418; --a-chip-pad:.22em; --a-ul:.42em; --a-hl-pct:100%}
+.a-site[data-lightacc="ink"]:not([data-mode="dark"]){--a-accent:var(--a-ink); --a-fill:var(--a-ink); --a-chip-ink:var(--a-ink)}
+.a-site[data-lightink="strong"]:not([data-mode="dark"]){--a-muted:#454c58; --a-line:#d2d6dc}
+
+/* ---- more list-row styles ---- */
+.a-list a .a-title{background-repeat:no-repeat;transition:background-size .3s ease,color .2s ease}
+/* spotlight: the hovered row stays, the others dim */
+.a-site[data-row~="spotlight"] .a-list a{transition:opacity .25s ease}
+@media (hover:hover){
+  .a-site[data-row~="spotlight"] .a-list:has(a:hover) a:not(:hover){opacity:.32}
+}
+.a-site[data-row~="spotlight"] .a-list:has(a:focus-visible) a:not(:focus-visible){opacity:.32}
+/* marker: a highlighter stroke grows behind the title */
+.a-site[data-row~="marker"] .a-list a .a-title{background-image:linear-gradient(color-mix(in srgb,var(--a-fill) var(--a-hl-pct),transparent),color-mix(in srgb,var(--a-fill) var(--a-hl-pct),transparent));background-position:0 92%;background-size:0 .55em}
+.a-site[data-row~="marker"] .a-list a:hover .a-title,.a-site[data-row~="marker"] .a-list a:focus-visible .a-title{background-size:100% .55em}
+/* underline: the same sweep as links, on the title */
+.a-site[data-row~="underline"] .a-list a .a-title{background-image:linear-gradient(var(--a-fill),var(--a-fill));background-position:0 100%;background-size:0 max(1.5px,calc(var(--a-ul) * .6))}
+.a-site[data-row~="underline"] .a-list a:hover .a-title{background-size:100% max(1.5px,calc(var(--a-ul) * .6))}
+/* invert: the row flips colours, like a selected line in a terminal */
+.a-site[data-row~="invert"] .a-list a{margin-inline:-12px;padding-inline:12px;transition:background-color .15s ease}
+.a-site[data-row~="invert"] .a-list a:hover{background:var(--a-ink)}
+.a-site[data-row~="invert"] .a-list a:hover :is(.a-title,.a-desc,.a-meta,.a-when,.swap>*){color:var(--a-bg)}
+.a-site[data-row~="invert"][data-row~="readout"] .a-list a:hover .swap .alt{color:var(--a-bg)}
+
+/* ---- easier-to-find theme switches ---- */
+.a-site[data-toggle="eclipse-pill"] .tg-eclipse,.a-site[data-toggle="eclipse-label"] .tg-eclipse{display:block}
+.a-site[data-toggle="eclipse-pill"] .mode-btn{width:38px;height:38px;padding:0;border:1px solid var(--a-line);border-radius:50%;transition:border-color .2s ease,box-shadow .2s ease}
+.a-site[data-toggle="eclipse-pill"] .mode-btn:hover{border-color:var(--a-fill);box-shadow:0 0 0 4px color-mix(in srgb,var(--a-fill) 18%,transparent)}
+.a-site[data-toggle="eclipse-pill"] .tg-eclipse{width:20px;height:20px}
+.a-site[data-toggle="eclipse-label"] .mode-btn{display:inline-flex;align-items:center;gap:7px;padding:5px 11px 5px 8px;border:1px solid var(--a-line);border-radius:999px;transition:border-color .2s ease}
+.a-site[data-toggle="eclipse-label"] .mode-btn:hover{border-color:var(--a-fill)}
+.a-site[data-toggle="eclipse-label"] .tg-eclipse{width:17px;height:17px}
+.a-site[data-toggle="eclipse-label"] .tg-text{display:inline-flex;padding:0}
+.a-site[data-toggle="eclipse-label"] .tg-text b{display:none}
+/* segmented: both options visible, the active one highlighted */
+.tg-seg{display:none}
+.a-site[data-toggle="seg"] .mode-btn{display:none}
+.a-site[data-toggle="seg"] .tg-seg{display:inline-flex;gap:2px;padding:2px;border:1px solid var(--a-line);border-radius:999px}
+.seg-b{display:grid;place-items:center;width:32px;height:26px;border:0;border-radius:999px;background:none;color:var(--a-muted);cursor:pointer;transition:background-color .2s ease,color .2s ease}
+.seg-b svg{width:16px;height:16px}
+.seg-b:hover{color:var(--a-ink)}
+.seg-b[aria-pressed="true"]{background:var(--a-ink);color:var(--a-bg)}
+.seg-b:focus-visible{outline:2px solid var(--a-accent);outline-offset:2px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* code font: JetBrains Mono for code only, or for every monospace element */
+.a-site[data-code="jbm"] .a-term pre,.a-site[data-code="jbm"] .a-post p code{font-family:var(--jbm)}
+.a-site[data-code="jbm-all"]{--a-label:var(--jbm)}
+.a-block{padding:26px 24px 8px}
+.a-h2{display:flex;justify-content:space-between;align-items:baseline;margin:0 0 10px;font:600 11px/1 var(--a-label);letter-spacing:.12em;text-transform:uppercase;color:var(--a-muted)}
+.a-h2 span:last-child{font-variant-numeric:tabular-nums}
+.a-list{list-style:none;margin:0;padding:0}
+.a-list li{border-top:1px solid var(--a-line)}
+.a-list a{display:grid;grid-template-columns:1fr auto;gap:2px 16px;padding:12px 0;position:relative}
+.a-title{font-weight:650;letter-spacing:-.01em;transition:color .2s ease}
+.a-desc{grid-column:1;color:var(--a-muted);font-size:14px}
+.a-meta{grid-column:2;grid-row:1;font:11px/1.6 var(--a-label);text-transform:uppercase;letter-spacing:.08em;color:var(--a-muted)}
+.a-meta.is-live{color:var(--a-ok)}
+.a-posts a{grid-template-columns:7.2em 1fr}
+.a-posts .a-when{grid-column:1;grid-row:1;font:12px/1.7 var(--a-label);color:var(--a-muted);font-variant-numeric:tabular-nums}
+.a-posts .a-title{grid-column:2}
+.swap{display:inline-grid}
+.swap>*{grid-area:1/1;transition:opacity .22s ease,transform .22s ease}
+.swap .alt{opacity:0}
+.a-foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:28px 24px 22px;font:11px/1.4 var(--a-label);color:var(--a-muted);letter-spacing:.04em}
+.a-post{padding:8px 24px 32px;display:grid;gap:16px}
+.a-post p{margin:0;max-width:62ch}
+.a-site .a-h1--post{font-size:calc(clamp(2rem,8cqi,3.3rem) * var(--a-h1-scale));line-height:1.02}
+.a-postmeta{display:flex;flex-wrap:wrap;gap:6px 16px;font:12px/1.4 var(--a-label);color:var(--a-muted);padding-bottom:14px;border-bottom:1px solid var(--a-line)}
+.a-post code{font:.88em var(--a-label);background:var(--a-surface);border:1px solid var(--a-line);border-radius:4px;padding:.05em .35em}
+.a-term{background:var(--a-term-bg);color:var(--a-term-ink);border-radius:6px;overflow:hidden}
+.a-term-bar{display:flex;justify-content:space-between;gap:12px;padding:8px 14px;font:11px/1.2 var(--a-label);color:var(--a-term-dim);border-bottom:1px solid #ffffff14;letter-spacing:.04em}
+.a-term pre{margin:0;padding:14px;overflow-x:auto;font:13px/1.6 var(--a-label)}
+.a-term code{background:none;border:0;padding:0;font:inherit}
+.a-term .p{color:var(--acc-d);user-select:none}
+.a-term .k{color:#8fb8ff}
+.a-term .s{color:#a8d8a0}
+.a-term .c{color:var(--a-term-dim)}
+
+/* ---- link hover styles (nav links + .a-link) ---- */
+.a-nav nav a,.a-site .a-link{position:relative;transition:background-size .25s ease,color .2s ease}
+/* sweep: underline grows from the left */
+.a-site[data-link="sweep"] .a-nav nav a,.a-site[data-link="sweep"] .a-link{background:linear-gradient(var(--a-fill),var(--a-fill)) 0 100%/0 var(--a-ul) no-repeat}
+.a-site[data-link="sweep"] .a-nav nav a:hover,.a-site[data-link="sweep"] .a-link:hover{background-size:100% var(--a-ul)}
+/* brackets: [ link ] closes in around the word */
+.a-site[data-link="bracket"] .a-nav nav a::before,.a-site[data-link="bracket"] .a-link::before,
+.a-site[data-link="bracket"] .a-nav nav a::after,.a-site[data-link="bracket"] .a-link::after{position:absolute;top:0;font-family:var(--a-label);color:var(--a-accent);opacity:0;transition:opacity .18s ease,transform .18s ease}
+.a-site[data-link="bracket"] .a-nav nav a::before,.a-site[data-link="bracket"] .a-link::before{content:"[";left:-.7em;transform:translateX(-4px)}
+.a-site[data-link="bracket"] .a-nav nav a::after,.a-site[data-link="bracket"] .a-link::after{content:"]";right:-.7em;transform:translateX(4px)}
+.a-site[data-link="bracket"] .a-nav nav a:hover::before,.a-site[data-link="bracket"] .a-link:hover::before,
+.a-site[data-link="bracket"] .a-nav nav a:hover::after,.a-site[data-link="bracket"] .a-link:hover::after{opacity:1;transform:none}
+.a-site[data-link="bracket"] .a-nav nav a::before,.a-site[data-link="bracket"] .a-link::before,
+.a-site[data-link="bracket"] .a-nav nav a::after,.a-site[data-link="bracket"] .a-link::after{font-weight:700}
+.a-site[data-link="bracket"] .a-nav nav a:hover,.a-site[data-link="bracket"] .a-link:hover{color:var(--a-accent)}
+/* optional blinking cursor after the closing bracket */
+.a-site[data-link="bracket"][data-caret="on"] .a-nav nav a::after,.a-site[data-link="bracket"][data-caret="on"] .a-link::after{
+  padding-right:.62em;right:-1.32em;
+  background:linear-gradient(var(--a-accent),var(--a-accent)) no-repeat right .2em/.46em .95em}
+.a-site[data-link="bracket"][data-caret="on"] .a-nav nav a:hover::after,.a-site[data-link="bracket"][data-caret="on"] .a-link:hover::after{animation:a-caret 1s steps(1,end) .2s infinite}
+@keyframes a-caret{50%{background-size:0 0}}
+/* fill: a translucent accent block wipes in behind the text */
+.a-site[data-link="fill"] .a-nav nav a,.a-site[data-link="fill"] .a-link{background:linear-gradient(color-mix(in srgb,var(--a-accent) 24%,transparent),color-mix(in srgb,var(--a-accent) 24%,transparent)) 0 0/0 100% no-repeat;padding-inline:2px;margin-inline:-2px}
+.a-site[data-link="fill"] .a-nav nav a:hover,.a-site[data-link="fill"] .a-link:hover{background-size:100% 100%}
+/* caret: a terminal block cursor appears after the word */
+.a-site[data-link="caret"] .a-nav nav a::after,.a-site[data-link="caret"] .a-link::after{content:"";position:absolute;left:calc(100% + 3px);top:.18em;width:.5em;height:1em;background:var(--a-accent);opacity:0}
+.a-site[data-link="caret"] .a-nav nav a:hover::after,.a-site[data-link="caret"] .a-link:hover::after{opacity:1;animation:a-blink 1s steps(2,jump-none) infinite}
+.a-site[data-link="caret"] .a-nav nav a:hover,.a-site[data-link="caret"] .a-link:hover{color:var(--a-accent)}
+@keyframes a-blink{50%{opacity:0}}
+
+/* ---- list row hover styles ---- */
+/* slide: row shifts right, accent tick appears */
+.a-site[data-row="slide"] .a-list a{transition:padding-left .2s ease}
+.a-site[data-row="slide"] .a-list a::before{content:"";position:absolute;left:0;top:50%;width:0;height:2px;background:var(--a-fill);transition:width .2s ease}
+.a-site[data-row="slide"] .a-list a:hover{padding-left:16px}
+.a-site[data-row="slide"] .a-list a:hover::before{width:9px}
+/* select: like the selected line in an editor */
+.a-site[data-row~="select"] .a-list a{margin-inline:-12px;padding-inline:12px;transition:background-color .15s ease,box-shadow .15s ease}
+.a-site[data-row~="select"] .a-list a:hover{background:color-mix(in srgb,var(--a-fill) 11%,transparent);box-shadow:inset 2px 0 var(--a-fill)}
+.a-site[data-row~="select"] .a-list a:hover .a-title{color:var(--a-accent)}
+/* readout: the right-hand value flips to extra detail */
+.a-site[data-row~="readout"] .a-list a:hover .swap .rest{opacity:0;transform:translateY(-60%)}
+.a-site[data-row~="readout"] .a-list a .swap .alt{transform:translateY(60%)}
+.a-site[data-row~="readout"] .a-list a:hover .swap .alt{opacity:1;transform:none;color:var(--a-accent)}
+/* scan: a hairline runs along the row, title takes the accent */
+.a-site[data-row="scan"] .a-list a::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:var(--a-fill);transform:scaleX(0);transform-origin:left;transition:transform .35s cubic-bezier(.2,.7,.2,1)}
+.a-site[data-row="scan"] .a-list a:hover::after{transform:scaleX(1)}
+.a-site[data-row="scan"] .a-list a:hover .a-title{color:var(--a-accent)}
+
+/* ---- page-load moment (runs once; content is visible at rest) ---- */
+/* boot: telemetry values type in one after another */
+.a-site[data-load="boot"] .a-tele>span{animation:a-type .32s steps(10,end) both}
+.a-site[data-load="boot"] .a-tele>span:nth-child(2){animation-delay:.18s}
+.a-site[data-load="boot"] .a-tele>span:nth-child(3){animation-delay:.36s}
+.a-site[data-load="boot"] .a-tele>span:nth-child(4){animation-delay:.54s}
+.a-site[data-load="boot"] .a-tele>span:nth-child(5){animation-delay:.8s}
+.a-site[data-load="boot"] .a-ok i{animation:a-type .01s .8s both,a-pulse 2.4s 1s ease-in-out infinite}
+@keyframes a-type{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+/* settle: headline lines rise out of a mask, lede follows */
+.a-site[data-load="settle"] .ln>span{animation:a-rise .7s cubic-bezier(.2,.75,.15,1) both}
+.a-site[data-load="settle"] .ln:nth-child(2)>span{animation-delay:.09s}
+.a-site[data-load="settle"] .a-lede,.a-site[data-load="settle"] .a-postmeta{animation:a-fade .5s .35s ease both}
+@keyframes a-rise{from{transform:translateY(105%)}to{transform:none}}
+@keyframes a-fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* scanline: one accent beam passes down the page */
+.a-site[data-load="scan"]::after{content:"";position:absolute;left:0;right:0;top:0;height:90px;pointer-events:none;
+  background:linear-gradient(to bottom,transparent,color-mix(in srgb,var(--a-accent) 16%,transparent) 85%,var(--a-accent) 100%);
+  animation:a-beam 1.3s cubic-bezier(.4,0,.2,1) both}
+@keyframes a-beam{0%{transform:translateY(-100%);opacity:1}85%{opacity:1}100%{transform:translateY(calc(var(--h,900px)));opacity:0}}
+</style>
+
+<style id="css-b">
+/* ================= B · WORKBENCH (set aside) ================= */
+.b-site{
+  --w-bg:#f3f5f7; --w-ink:#1a1d23; --w-muted:#586172; --w-line:#d6dbe2; --w-accent:#2346c4; --w-hl:#dfe6ff;
+  --w-mint:#dff0e8; --w-mint-ink:#1d5b43; --w-butter:#f4ecc6; --w-butter-ink:#6b5410; --w-code:#e8edf3; --w-code-ink:#1f2430;
+  background:var(--w-bg);color:var(--w-ink);font:17px/1.65 var(--serif);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .b-site[data-mode="auto"]{
+    --w-bg:#14161b; --w-ink:#e6e8ec; --w-muted:#9ba3b0; --w-line:#2a2f38; --w-accent:#93a9ff; --w-hl:#26315a;
+    --w-mint:#17342a; --w-mint-ink:#9fdcbf; --w-butter:#37321a; --w-butter-ink:#e8d68f; --w-code:#1c2027; --w-code-ink:#dfe3ea; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"] .b-site[data-mode="auto"], .b-site[data-mode="dark"]{
+  --w-bg:#14161b; --w-ink:#e6e8ec; --w-muted:#9ba3b0; --w-line:#2a2f38; --w-accent:#93a9ff; --w-hl:#26315a;
+  --w-mint:#17342a; --w-mint-ink:#9fdcbf; --w-butter:#37321a; --w-butter-ink:#e8d68f; --w-code:#1c2027; --w-code-ink:#dfe3ea; color-scheme:dark;
+}
+.b-site a{color:inherit;text-decoration:none}
+.b-site .b-link{background:linear-gradient(var(--w-hl),var(--w-hl)) 0 88%/0 45% no-repeat;transition:background-size .3s ease;box-shadow:inset 0 -1px var(--w-accent)}
+.b-site .b-link:hover{background-size:100% 45%}
+.b-nav{display:flex;align-items:center;gap:18px;padding:20px 28px;font-family:var(--sans)}
+.b-mark{position:relative;font:750 15px/1 var(--sans);padding:6px 9px}
+.b-mark svg{position:absolute;inset:-4px -6px;width:calc(100% + 12px);height:calc(100% + 8px);color:var(--w-accent);overflow:visible}
+.b-nav nav{display:flex;gap:18px;margin-left:auto;font-size:15px}
+.b-site .mode-btn{border-color:var(--w-line)}
+.b-hero{padding:16px 28px 34px;display:grid;gap:14px}
+.b-h1{margin:0;font:780 clamp(2.4rem,11cqi,4.6rem)/1 var(--sans);letter-spacing:-.035em;text-wrap:balance}
+.b-scribble{position:relative;white-space:nowrap}
+.b-scribble svg{position:absolute;left:-2%;bottom:-.18em;width:104%;height:.3em;color:var(--w-accent);overflow:visible}
+.b-scribble path{stroke-dasharray:240;stroke-dashoffset:240;animation:b-draw .9s .3s ease-out forwards}
+@keyframes b-draw{to{stroke-dashoffset:0}}
+.b-lede{margin:0;max-width:40ch;font-size:19px;color:var(--w-muted)}
+.b-sec{padding:20px 28px 10px}
+.b-h2{margin:0 0 12px;font:700 13px/1 var(--sans);letter-spacing:.04em;color:var(--w-muted)}
+.b-projects{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.b-projects a{display:grid;grid-template-columns:1fr auto;gap:2px 14px;padding:10px 0;border-bottom:1px dashed var(--w-line)}
+.b-ptitle{font:700 17px/1.35 var(--sans);letter-spacing:-.01em}
+.b-pdesc{grid-column:1;color:var(--w-muted);font-size:15px;line-height:1.5}
+.b-tag{grid-column:2;grid-row:1;align-self:start;font:700 11px/1 var(--sans);letter-spacing:.03em;padding:5px 8px;border-radius:4px;transform:rotate(-1.5deg)}
+.t-live{background:var(--w-mint);color:var(--w-mint-ink)}
+.t-wip{background:var(--w-butter);color:var(--w-butter-ink)}
+.t-plan{background:var(--w-hl);color:var(--w-accent)}
+.b-foot{padding:26px 28px 24px;font:13px/1.4 var(--sans);color:var(--w-muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+</style>
+
+<main class="board">
+  <header class="board-head">
+    <p class="board-kicker">vadymherman.dev · roadmap step 1.2 · design directions</p>
+    <h1>Two directions for vadymherman.dev</h1>
+    <p>You chose Signal. Locked: yellow accent (dark mode), MONO CAPS menu, Geist + Geist Mono, JetBrains Mono for code, Sweep links, Boot on load. New to try (marked ✓): Highlighter light mode with stronger grey, Spotlight + Readout rows, Eclipse + label switch. Switch a mockup to Light to judge light mode. Font sizes are measured from the real files (English page = latin subset; Polish page adds latin-ext). Workbench is kept at the bottom for reference.</p>
+    <dl class="facts">
+      <div><dt>CSS budget</dt><dd>&lt; 14 KB</dd></div>
+      <div><dt>Signal CSS, all lab options</dt><dd id="size-a">…</dd></div>
+      <div><dt>Fonts measured</dt><dd>32 requests</dd></div>
+      <div><dt>Lightest web pairing</dt><dd>23 KB</dd></div>
+    </dl>
+  </header>
+
+  <!-- ============ A · SIGNAL ============ -->
+  <section class="direction" id="signal" data-dir="a">
+    <div class="dir-head">
+      <div>
+        <h2>A · Signal <span class="chosen">chosen</span></h2>
+        <p>Dark, cinematic, precise. Big tight headline, one strong accent colour, hairline structure, real build facts along the top, terminal code blocks.</p>
+      </div>
+      <div class="seg" role="group" aria-label="Signal theme">
+        <button type="button" data-mode="auto" aria-pressed="true">System</button>
+        <button type="button" data-mode="light" aria-pressed="false">Light</button>
+        <button type="button" data-mode="dark" aria-pressed="false">Dark</button>
+      </div>
+    </div>
+
+    <form class="lab" id="lab" aria-label="Signal options">
+      <fieldset class="wide">
+        <legend>Accent colour · links, selected row, cursor, labels</legend>
+        <div class="opts swatches">
+          <label><input type="radio" name="accent" value="amber"><span><i style="--sw:#ffb340"></i>Amber</span></label>
+          <label><input type="radio" name="accent" value="cobalt"><span><i style="--sw:#6ea8ff"></i>Cobalt</span></label>
+          <label><input type="radio" name="accent" value="cyan"><span><i style="--sw:#3fe0d0"></i>Cyan</span></label>
+          <label><input type="radio" name="accent" value="violet"><span><i style="--sw:#a990ff"></i>Violet</span></label>
+          <label><input type="radio" name="accent" value="magenta"><span><i style="--sw:#ff5fb0"></i>Magenta</span></label>
+          <label><input type="radio" name="accent" value="coral"><span><i style="--sw:#ff7a59"></i>Coral</span></label>
+          <label><input type="radio" name="accent" value="yellow" checked><span><i style="--sw:#ffe14d"></i>Yellow ✓</span></label>
+          <label><input type="radio" name="accent" value="custom" id="accent-custom"><span><i id="sw-custom" style="--sw:#4dd0ff"></i>Custom</span></label>
+          <input type="color" id="accent-pick" value="#4dd0ff" aria-label="Pick a custom accent colour">
+        </div>
+        <p class="hint" id="accent-hint"></p>
+      </fieldset>
+      <fieldset class="wide">
+        <legend>Selected row · title + text under it (tint and edge stay in the accent)</legend>
+        <div class="opts swatches">
+          <label><input type="radio" name="lede" value="muted"><span><i style="--sw:#8d95a3"></i>Accent title, grey text (was)</span></label>
+          <label><input type="radio" name="lede" value="amber" checked><span><i style="--sw:#ffb340"></i>Amber ✓</span></label>
+          <label><input type="radio" name="lede" value="bright"><span><i style="--sw:#c9ced6"></i>Bright neutral</span></label>
+          <label><input type="radio" name="lede" value="mint"><span><i style="--sw:#7ee3c6"></i>Mint</span></label>
+          <label><input type="radio" name="lede" value="sand"><span><i style="--sw:#e8d5a9"></i>Sand</span></label>
+          <label><input type="radio" name="lede" value="ice"><span><i style="--sw:#a9d4ff"></i>Ice blue</span></label>
+          <label><input type="radio" name="lede" value="pink"><span><i style="--sw:#ffb3d9"></i>Soft pink</span></label>
+        </div>
+        <p class="hint" id="lede-hint"></p>
+      </fieldset>
+      <fieldset class="wide">
+        <legend>Menu font · Writing / Projects / About</legend>
+        <div class="opts">
+          <label><input type="radio" name="nav" value="geist"><span>Geist (was)</span></label>
+          <label><input type="radio" name="nav" value="mono"><span>Geist Mono</span></label>
+          <label><input type="radio" name="nav" value="caps" checked><span>MONO CAPS ✓</span></label>
+          <label><input type="radio" name="nav" value="path"><span>/path style</span></label>
+          <label><input type="radio" name="nav" value="system"><span>System sans</span></label>
+        </div>
+        <p class="hint" id="nav-hint"></p>
+      </fieldset>
+      <fieldset class="wide">
+        <legend>Code font · code blocks and inline code (see the Post mockup)</legend>
+        <div class="opts">
+          <label><input type="radio" name="code" value="geist-mono"><span>Geist Mono (was)</span></label>
+          <label><input type="radio" name="code" value="jbm" checked><span>JetBrains Mono for code ✓</span></label>
+          <label><input type="radio" name="code" value="jbm-all"><span>JetBrains Mono for all mono</span></label>
+        </div>
+        <p class="hint" id="code-hint"></p>
+      </fieldset>
+      <fieldset class="wide">
+        <legend>Theme switch · click it in the mockup's top-right corner</legend>
+        <div class="opts">
+          <label><input type="radio" name="toggle" value="eclipse-label" checked><span>Eclipse + label ✓</span></label>
+          <label><input type="radio" name="toggle" value="seg"><span>☀ | ☾ side by side</span></label>
+          <label><input type="radio" name="toggle" value="eclipse-pill"><span>Eclipse in a ring</span></label>
+          <label><input type="radio" name="toggle" value="eclipse"><span>Eclipse (small, was)</span></label>
+          <label><input type="radio" name="toggle" value="bulb"><span>Bulb</span></label>
+          <label><input type="radio" name="toggle" value="hang"><span>Hanging bulb</span></label>
+          <label><input type="radio" name="toggle" value="text"><span>MODE/DARK</span></label>
+          <label><input type="radio" name="toggle" value="round"><span>◐ Round</span></label>
+        </div>
+        <label class="check"><input type="checkbox" name="vt" id="vt-toggle"> Circular reveal: the new theme spreads out from the switch</label>
+        <p class="hint" id="toggle-hint"></p>
+      </fieldset>
+      <fieldset class="wide">
+        <legend>Light mode · how the accent is used on white (dark mode keeps it as text)</legend>
+        <div class="opts swatches">
+          <label><input type="radio" name="lightacc" value="marker" checked><span><i style="--sw:#ffe14d"></i>Highlighter ✓</span></label>
+          <label><input type="radio" name="lightacc" value="gold"><span><i style="--sw:#806500"></i>Dark gold (was)</span></label>
+          <label><input type="radio" name="lightacc" value="ink"><span><i style="--sw:#121418"></i>Ink only</span></label>
+          <label><input type="radio" name="lightacc" value="cobalt"><span><i style="--sw:#1d5bd8"></i>Cobalt</span></label>
+          <label><input type="radio" name="lightacc" value="violet"><span><i style="--sw:#6a3fd6"></i>Violet</span></label>
+          <label><input type="radio" name="lightacc" value="red"><span><i style="--sw:#b42318"></i>Signal red</span></label>
+        </div>
+        <label class="check"><input type="checkbox" name="lightink" id="lightink-toggle" checked> Stronger grey text in light mode</label>
+        <p class="hint" id="lightacc-hint"></p>
+      </fieldset>
+      <fieldset class="wide">
+        <legend>Font pairing · headline / text / labels + code</legend>
+        <div class="opts">
+          <label><input type="radio" name="font" id="font-system" value="system"><span>System only</span></label>
+          <label><input type="radio" name="font" id="font-geist" value="geist" checked><span>Geist + Geist Mono ✓</span></label>
+          <label><input type="radio" name="font" id="font-space" value="space"><span>Space Grotesk + JetBrains Mono</span></label>
+          <label><input type="radio" name="font" id="font-plex" value="plex"><span>IBM Plex Sans + Plex Mono</span></label>
+          <label><input type="radio" name="font" id="font-inter" value="inter"><span>Inter Tight + JetBrains Mono</span></label>
+          <label><input type="radio" name="font" id="font-bricolage" value="bricolage"><span>Bricolage + Geist Mono</span></label>
+          <label><input type="radio" name="font" id="font-jbm" value="jbm-head"><span>JetBrains Mono headline</span></label>
+          <label><input type="radio" name="font" id="font-martian" value="martian"><span>Martian Mono headline</span></label>
+        </div>
+        <p class="hint" id="font-hint"></p>
+      </fieldset>
+      <fieldset>
+        <legend>Link hover</legend>
+        <div class="opts">
+          <label><input type="radio" name="link" id="link-sweep" value="sweep" checked><span>Sweep ✓</span></label>
+          <label><input type="radio" name="link" id="link-bracket" value="bracket"><span>Brackets</span></label>
+          <label><input type="radio" name="link" id="link-fill" value="fill"><span>Fill</span></label>
+          <label><input type="radio" name="link" id="link-caret" value="caret"><span>Caret</span></label>
+        </div>
+        <label class="check"><input type="checkbox" name="caret" id="caret-toggle"> Blinking cursor after the closing bracket</label>
+        <p class="hint" id="link-hint"></p>
+      </fieldset>
+      <fieldset>
+        <legend>List rows · hover a project or post</legend>
+        <div class="opts">
+          <label><input type="radio" name="row" id="row-spot" value="spotlight" checked><span>Spotlight ✓</span></label>
+          <label><input type="radio" name="row" id="row-marker" value="marker"><span>Marker</span></label>
+          <label><input type="radio" name="row" id="row-invert" value="invert"><span>Invert</span></label>
+          <label><input type="radio" name="row" id="row-underline" value="underline"><span>Underline</span></label>
+          <label><input type="radio" name="row" id="row-select" value="select"><span>Select (was)</span></label>
+          <label><input type="radio" name="row" id="row-slide" value="slide"><span>Slide + tick</span></label>
+        </div>
+        <label class="check"><input type="checkbox" name="readout" id="readout-toggle" checked> Readout: the value on the right flips to detail</label>
+        <p class="hint" id="row-hint"></p>
+      </fieldset>
+      <fieldset>
+        <legend>Page load</legend>
+        <div class="opts">
+          <label><input type="radio" name="load" id="load-none" value="none"><span>None</span></label>
+          <label><input type="radio" name="load" id="load-boot" value="boot" checked><span>Boot ✓</span></label>
+          <label><input type="radio" name="load" id="load-settle" value="settle"><span>Settle</span></label>
+          <label><input type="radio" name="load" id="load-scan" value="scan"><span>Scanline</span></label>
+        </div>
+        <p class="hint" id="load-hint"></p>
+        <button class="replay" type="button" id="replay">Replay page load</button>
+      </fieldset>
+    </form>
+
+    <div class="frames">
+      <figure class="frame">
+        <figcaption><span>Home</span><em>hover the rows and links</em></figcaption>
+        <div class="browser">
+          <div class="url">vadymherman.dev/en/</div>
+          <div class="site a-site" data-mode="auto" data-font="geist" data-link="sweep" data-caret="off" data-rowdesc="color" data-nav="caps" data-code="jbm" data-toggle="eclipse-label" data-vt="off" data-lightacc="marker" data-lightink="strong" data-row="spotlight readout" data-load="boot">
+            <div class="a-tele" aria-label="Build facts">
+              <span><b>build</b>4a802aa</span><span><b>origin</b>WAW</span><span><b>page</b>1.5 KB</span><span><b>proto</b>h3</span>
+              <span class="a-ok"><i></i>nominal</span>
+            </div>
+            <header class="a-nav">
+              <a class="a-mark" href="#signal">VH<span>/</span>dev</a>
+              <nav aria-label="Main"><a href="#signal">Writing</a><a href="#signal">Projects</a><a href="#signal">About</a></nav>
+              <button class="mode-btn" type="button" aria-label="Dark theme" aria-pressed="false"><span class="tg tg-round" aria-hidden="true">◐</span><svg class="tg tg-bulb bulb" viewBox="0 0 24 24" aria-hidden="true"><circle class="glow" cx="12" cy="9.5" r="10"/><path class="glass" d="M12 2.8a6.2 6.2 0 0 0-3.7 11.2c.6.5.9 1.1.9 1.9V17h5.6v-1.1c0-.8.3-1.4.9-1.9A6.2 6.2 0 0 0 12 2.8z"/><path class="fil" d="M10.4 14.2 11.2 10.6 12 12.4 12.8 10.6 13.6 14.2"/><path class="base" d="M9.6 19.2h4.8M10.4 21.4h3.2"/></svg><span class="tg tg-hang" aria-hidden="true"><i class="cord"></i><svg class="bulb" viewBox="0 0 24 24"><circle class="glow" cx="12" cy="9.5" r="10"/><path class="glass" d="M12 2.8a6.2 6.2 0 0 0-3.7 11.2c.6.5.9 1.1.9 1.9V17h5.6v-1.1c0-.8.3-1.4.9-1.9A6.2 6.2 0 0 0 12 2.8z"/><path class="fil" d="M10.4 14.2 11.2 10.6 12 12.4 12.8 10.6 13.6 14.2"/><path class="base" d="M9.6 19.2h4.8M10.4 21.4h3.2"/></svg></span><svg class="tg tg-eclipse" viewBox="0 0 24 24" aria-hidden="true"><mask id="ecl-1"><rect x="-6" y="-6" width="36" height="36" fill="#fff"/><circle class="bite" cx="23" cy="3" r="7" fill="#000"/></mask><circle class="core" cx="12" cy="12" r="5.5" mask="url(#ecl-1)"/><g class="rays"><path d="M12 1.8v2.4M12 19.8v2.4M1.8 12h2.4M19.8 12h2.4M4.8 4.8l1.7 1.7M17.5 17.5l1.7 1.7M4.8 19.2l1.7-1.7M17.5 6.5l1.7-1.7"/></g></svg><span class="tg tg-text" aria-hidden="true"><b>Mode/</b><span class="sw"><span class="l">Light</span><span class="d">Dark</span></span></span></button><div class="tg-seg" role="group" aria-label="Theme"><button type="button" class="seg-b" data-set="light" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.2" fill="currentColor" stroke="none"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.5 1.5M17.2 17.2l1.5 1.5M5.3 18.7l1.5-1.5M17.2 6.8l1.5-1.5"/></svg><span class="vh">Light</span></button><button type="button" class="seg-b" data-set="dark" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.5 14.6A8.6 8.6 0 1 1 9.4 3.5a7 7 0 0 0 11.1 11.1z"/></svg><span class="vh">Dark</span></button></div>
+            </header>
+            <section class="a-hero">
+              <p class="a-label">Linux · KVM · platform reliability</p>
+              <h1 class="a-h1"><span class="ln"><span>Vadym</span></span><span class="ln"><span>Herman</span></span></h1>
+              <p class="a-lede">Systems engineer working on Linux, KVM and platform reliability. Notes from the job and the projects around it.</p>
+            </section>
+            <section class="a-block">
+              <h2 class="a-h2"><span>Projects</span><span>3</span></h2>
+              <ul class="a-list">
+                <li><a href="#signal"><span class="a-title">vadymherman.dev</span><span class="a-meta is-live swap"><span class="rest">live</span><span class="alt">hugo · caddy</span></span><span class="a-desc">This site. Hugo, Caddy on AlmaLinux 10, Ansible, GitHub Actions.</span></a></li>
+                <li><a href="#signal"><span class="a-title">Ansible hardening roles</span><span class="a-meta swap"><span class="rest">in progress</span><span class="alt">5 roles</span></span><span class="a-desc">base, users_ssh, firewall, SELinux, Caddy. Second run: changed=0.</span></a></li>
+                <li><a href="#signal"><span class="a-title">Monitoring node</span><span class="a-meta swap"><span class="rest">planned</span><span class="alt">step 3.1</span></span><span class="a-desc">Uptime Kuma on rootless Podman with Quadlet, public status page.</span></a></li>
+              </ul>
+            </section>
+            <section class="a-block">
+              <h2 class="a-h2"><span>Writing</span><span>3</span></h2>
+              <ul class="a-list a-posts">
+                <li><a href="#signal"><span class="a-when swap"><time class="rest" datetime="2026-10-08">2026-10-08</time><span class="alt">4 min</span></span><span class="a-title">Reading the runner's source to fix a CI bug</span></a></li>
+                <li><a href="#signal"><span class="a-when swap"><time class="rest" datetime="2026-10-08">2026-10-08</time><span class="alt">3 min</span></span><span class="a-title">Pinning checksums for build tools</span></a></li>
+                <li><a href="#signal"><span class="a-when swap"><time class="rest" datetime="2026-10-07">2026-10-07</time><span class="alt">1 min</span></span><span class="a-title">Hello, world</span></a></li>
+              </ul>
+            </section>
+            <footer class="a-foot"><span>© 2026 Vadym Herman</span><span>0 KB JavaScript · served by Caddy</span></footer>
+          </div>
+        </div>
+      </figure>
+
+      <figure class="frame">
+        <figcaption><span>Post</span><em>sample text, mockup only</em></figcaption>
+        <div class="browser">
+          <div class="url">vadymherman.dev/en/blog/runner-source/</div>
+          <div class="site a-site" data-mode="auto" data-font="geist" data-link="sweep" data-caret="off" data-rowdesc="color" data-nav="caps" data-code="jbm" data-toggle="eclipse-label" data-vt="off" data-lightacc="marker" data-lightink="strong" data-row="spotlight readout" data-load="boot">
+            <div class="a-tele" aria-label="Build facts">
+              <span><b>build</b>4a802aa</span><span><b>origin</b>WAW</span><span><b>page</b>2.1 KB</span><span><b>proto</b>h3</span>
+              <span class="a-ok"><i></i>nominal</span>
+            </div>
+            <header class="a-nav">
+              <a class="a-mark" href="#signal">VH<span>/</span>dev</a>
+              <nav aria-label="Main"><a href="#signal">Writing</a><a href="#signal">Projects</a><a href="#signal">About</a></nav>
+              <button class="mode-btn" type="button" aria-label="Dark theme" aria-pressed="false"><span class="tg tg-round" aria-hidden="true">◐</span><svg class="tg tg-bulb bulb" viewBox="0 0 24 24" aria-hidden="true"><circle class="glow" cx="12" cy="9.5" r="10"/><path class="glass" d="M12 2.8a6.2 6.2 0 0 0-3.7 11.2c.6.5.9 1.1.9 1.9V17h5.6v-1.1c0-.8.3-1.4.9-1.9A6.2 6.2 0 0 0 12 2.8z"/><path class="fil" d="M10.4 14.2 11.2 10.6 12 12.4 12.8 10.6 13.6 14.2"/><path class="base" d="M9.6 19.2h4.8M10.4 21.4h3.2"/></svg><span class="tg tg-hang" aria-hidden="true"><i class="cord"></i><svg class="bulb" viewBox="0 0 24 24"><circle class="glow" cx="12" cy="9.5" r="10"/><path class="glass" d="M12 2.8a6.2 6.2 0 0 0-3.7 11.2c.6.5.9 1.1.9 1.9V17h5.6v-1.1c0-.8.3-1.4.9-1.9A6.2 6.2 0 0 0 12 2.8z"/><path class="fil" d="M10.4 14.2 11.2 10.6 12 12.4 12.8 10.6 13.6 14.2"/><path class="base" d="M9.6 19.2h4.8M10.4 21.4h3.2"/></svg></span><svg class="tg tg-eclipse" viewBox="0 0 24 24" aria-hidden="true"><mask id="ecl-2"><rect x="-6" y="-6" width="36" height="36" fill="#fff"/><circle class="bite" cx="23" cy="3" r="7" fill="#000"/></mask><circle class="core" cx="12" cy="12" r="5.5" mask="url(#ecl-2)"/><g class="rays"><path d="M12 1.8v2.4M12 19.8v2.4M1.8 12h2.4M19.8 12h2.4M4.8 4.8l1.7 1.7M17.5 17.5l1.7 1.7M4.8 19.2l1.7-1.7M17.5 6.5l1.7-1.7"/></g></svg><span class="tg tg-text" aria-hidden="true"><b>Mode/</b><span class="sw"><span class="l">Light</span><span class="d">Dark</span></span></span></button><div class="tg-seg" role="group" aria-label="Theme"><button type="button" class="seg-b" data-set="light" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.2" fill="currentColor" stroke="none"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.5 1.5M17.2 17.2l1.5 1.5M5.3 18.7l1.5-1.5M17.2 6.8l1.5-1.5"/></svg><span class="vh">Light</span></button><button type="button" class="seg-b" data-set="dark" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.5 14.6A8.6 8.6 0 1 1 9.4 3.5a7 7 0 0 0 11.1 11.1z"/></svg><span class="vh">Dark</span></button></div>
+            </header>
+            <article class="a-post">
+              <p class="a-label"><a class="a-link" href="#signal">Writing</a></p>
+              <h1 class="a-h1 a-h1--post"><span class="ln"><span>Reading the runner's source to fix a CI bug</span></span></h1>
+              <p class="a-postmeta"><span>2026-10-08</span><span>4 min read</span><span>#ci</span><span>#github-actions</span></p>
+              <p>The workflow loaded tool versions with <code>cat versions.env &gt;&gt; "$GITHUB_ENV"</code>. Instead of guessing whether comment lines were allowed, I read the parser in <a class="a-link" href="#signal">actions/runner</a>.</p>
+              <div class="a-term">
+                <div class="a-term-bar"><span>FileCommandManager.cs</span><span>L386–438</span></div>
+<pre><code><span class="k">var</span> equalsIndex  = line.IndexOf(<span class="s">"="</span>);
+<span class="k">var</span> heredocIndex = line.IndexOf(<span class="s">"&lt;&lt;"</span>);
+<span class="c">// neither NAME=VALUE nor NAME&lt;&lt;EOF</span>
+<span class="k">throw new</span> Exception(<span class="s">$"Invalid format '{line}'"</span>);</code></pre>
+              </div>
+              <p>Every line needs <code>=</code> or <code>&lt;&lt;</code>. A comment line has neither, so the job fails. The fix keeps only assignments:</p>
+              <div class="a-term">
+                <div class="a-term-bar"><span>bash</span><span>ci.yml</span></div>
+<pre><code><span class="p">$ </span>grep -E <span class="s">'^[A-Za-z_][A-Za-z0-9_]*='</span> versions.env &gt;&gt; <span class="s">"$GITHUB_ENV"</span></code></pre>
+              </div>
+            </article>
+          </div>
+        </div>
+      </figure>
+    </div>
+  </section>
+
+  <section class="mix" aria-labelledby="pair-h">
+    <h2 id="pair-h">Font pairings, measured</h2>
+    <p>Download cost on the first visit, as woff2 files trimmed to the characters each language needs. After the first page, the browser reuses its cached copy. Body text in system fonts adds nothing. "Why it pairs" is from type guides, so treat it as opinion.</p>
+    <div class="mix-table">
+      <table>
+        <thead><tr><th>Pairing</th><th>EN page</th><th>PL page</th><th>Why it pairs</th></tr></thead>
+        <tbody>
+          <tr><td>System only</td><td>0 KB</td><td>0 KB</td><td>Fastest possible; looks a bit different on each OS</td></tr>
+          <tr><td>Martian Mono headline + labels</td><td>23.0 KB</td><td>38.5 KB</td><td>One wide, bold mono does all the character work; text stays system</td></tr>
+          <tr><td>JetBrains Mono headline + labels</td><td>30.7 KB</td><td>42.0 KB</td><td>The classic developer signal; one file covers headline and code</td></tr>
+          <tr><td>Geist + Geist Mono</td><td>51.3 KB</td><td>81.7 KB</td><td>Superfamily drawn together (Vercel); headline and text in Geist</td></tr>
+          <tr><td>Space Grotesk + JetBrains Mono</td><td>52.5 KB</td><td>82.3 KB</td><td>Space Grotesk grew out of a monospace, so it shares mono DNA</td></tr>
+          <tr><td>Bricolage + Geist Mono</td><td>63.0 KB*</td><td>95.5 KB*</td><td>Characterful display face, neutral mono beside it. *Measured without its optical-size axis; real cost is higher</td></tr>
+          <tr><td>IBM Plex Sans + Plex Mono</td><td>73.5 KB</td><td>129.9 KB</td><td>Superfamily built for technical writing; Plex Mono ships as separate files per weight</td></tr>
+          <tr><td>Inter Tight + JetBrains Mono</td><td>74.5 KB</td><td>173.5 KB</td><td>Popular and safe; Inter's Polish subset is unusually large</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <details>
+      <summary>All 32 measurements</summary>
+      <div class="mix-table" style="margin-top:10px">
+        <table>
+          <thead><tr><th>Font</th><th>Weights</th><th>latin</th><th>+ latin-ext</th></tr></thead>
+          <tbody id="measure-rows"></tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+
+  <section class="mix" aria-labelledby="mix-h">
+    <h2 id="mix-h">Borrow from Workbench?</h2>
+    <p>These Workbench pieces could still be added to Signal if you want some of its handmade feel. None are included unless you ask.</p>
+    <div class="mix-table">
+      <table>
+        <thead><tr><th>Element</th><th>From</th><th>What it does</th><th>Built with</th></tr></thead>
+        <tbody>
+          <tr><td>Hand-drawn underline</td><td>B</td><td>Draws itself once under the name, skipped with reduced motion</td><td>Inline SVG, CSS</td></tr>
+          <tr><td>Margin notes</td><td>B</td><td>Asides beside the text on wide screens, inline on phones</td><td>CSS container query</td></tr>
+          <tr><td>Status stickers</td><td>B</td><td>Coloured live / in progress / planned tags on projects</td><td>CSS</td></tr>
+          <tr><td>Serif reading text</td><td>B</td><td>Book-like long posts; headings stay sans or mono</td><td>System serif stack</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="next">Next: tell me your picks, for example "JBM + headline, Brackets, Readout, Boot", plus anything to tweak. I'll lock them in and build the real main.css.</p>
+  </section>
+
+  <!-- ============ B · WORKBENCH (set aside) ============ -->
+  <section class="direction aside-dir" id="workbench" data-dir="b">
+    <div class="dir-head">
+      <div>
+        <h2>B · Workbench</h2>
+        <p>Set aside. Kept here so you can compare, and in case you want to borrow a piece from the table above.</p>
+      </div>
+      <div class="seg" role="group" aria-label="Workbench theme">
+        <button type="button" data-mode="auto" aria-pressed="true">System</button>
+        <button type="button" data-mode="light" aria-pressed="false">Light</button>
+        <button type="button" data-mode="dark" aria-pressed="false">Dark</button>
+      </div>
+    </div>
+    <div class="frames">
+      <figure class="frame">
+        <figcaption><span>Home</span></figcaption>
+        <div class="browser">
+          <div class="url">vadymherman.dev/en/</div>
+          <div class="site b-site" data-mode="auto">
+            <header class="b-nav">
+              <a class="b-mark" href="#workbench">VH<svg viewBox="0 0 60 30" aria-hidden="true"><path d="M8 16 C 6 5, 46 2, 54 12 C 60 22, 22 30, 9 22 C 4 19, 10 9, 22 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></a>
+              <nav aria-label="Main"><a class="b-link" href="#workbench">Writing</a><a class="b-link" href="#workbench">Projects</a><a class="b-link" href="#workbench">About</a></nav>
+              <button class="mode-btn" type="button" aria-label="Switch theme">◐</button>
+            </header>
+            <section class="b-hero">
+              <h1 class="b-h1">Vadym <span class="b-scribble">Herman<svg viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true"><path d="M3 9 C 40 3, 80 13, 120 6 S 178 4, 197 8" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></svg></span></h1>
+              <p class="b-lede">Systems engineer working on Linux, KVM and platform reliability. Notes from the job and the projects around it.</p>
+            </section>
+            <section class="b-sec">
+              <h2 class="b-h2">Projects</h2>
+              <ul class="b-projects">
+                <li><a href="#workbench"><span class="b-ptitle">vadymherman.dev</span><span class="b-tag t-live">live</span><span class="b-pdesc">This site. Hugo, Caddy on AlmaLinux 10, Ansible, GitHub Actions.</span></a></li>
+                <li><a href="#workbench"><span class="b-ptitle">Ansible hardening roles</span><span class="b-tag t-wip">in progress</span><span class="b-pdesc">base, users_ssh, firewall, SELinux, Caddy. Second run: changed=0.</span></a></li>
+                <li><a href="#workbench"><span class="b-ptitle">Monitoring node</span><span class="b-tag t-plan">planned</span><span class="b-pdesc">Uptime Kuma on rootless Podman with Quadlet, public status page.</span></a></li>
+              </ul>
+            </section>
+            <footer class="b-foot"><span>© 2026 Vadym Herman</span><span>Made by hand in Hugo</span></footer>
+          </div>
+        </div>
+      </figure>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  var css = document.getElementById('css-a');
+  document.getElementById('size-a').textContent = (new Blob([css.textContent]).size / 1024).toFixed(1) + ' KB';
+
+  var hints = {
+    font: {
+      'system': '<b>0 KB.</b> Headline and text in the OS sans (San Francisco, Segoe UI, Cantarell/Noto…), labels in the OS mono. Looks slightly different on each OS.',
+      'geist': '<b>51.3 KB EN · 81.7 KB PL.</b> Geist for headline and text, Geist Mono for labels and code. One family, drawn together, very clean. The "Vercel look".',
+      'space': '<b>52.5 KB EN · 82.3 KB PL.</b> Space Grotesk headline (quirky, squared terminals), system text, JetBrains Mono labels. Technical with personality.',
+      'plex': '<b>73.5 KB EN · 129.9 KB PL.</b> IBM Plex Sans for headline and text, Plex Mono for labels. Engineered, documentation feel. The heaviest superfamily here.',
+      'inter': '<b>74.5 KB EN · 173.5 KB PL.</b> Inter Tight headline, system text, JetBrains Mono labels. Safe and popular, but close to what system fonts already look like.',
+      'bricolage': '<b>~63 KB EN · ~96 KB PL (more with optical sizes).</b> Bricolage Grotesque headline, system text, Geist Mono labels. The most characterful headline.',
+      'jbm-head': '<b>30.7 KB EN · 42.0 KB PL.</b> JetBrains Mono ExtraBold headline and labels, system text. One file does all the character work.',
+      'martian': '<b>23.0 KB EN · 38.5 KB PL.</b> Martian Mono headline and labels, system text. Wide, bold, instrument-panel feel. The lightest web option.'
+    },
+    link: {
+      'sweep': 'An accent-coloured line grows from the left under the word.',
+      'bracket': 'Bold square brackets close in around the word and the word takes the accent colour, like a selected token in a terminal. Tick the box for a blinking cursor too.',
+      'fill': 'A translucent accent block wipes in behind the word, like a text selection.',
+      'caret': 'The word takes the accent and a block cursor blinks after it.'
+    },
+    row: {
+      'spotlight': 'The row you point at stays; the others fade to a third. No colour needed, so it works the same in both themes. Also works with the keyboard (Tab).',
+      'marker': 'A highlighter stroke grows behind the title. In light mode with Highlighter it is solid yellow behind black text; in dark mode a softer yellow glow.',
+      'invert': 'The whole row flips colours, like a selected line in a terminal: black bar with white text in light mode, the reverse in dark mode.',
+      'underline': 'The title gets the same sweep as links. Consistent and quiet.',
+      'select': 'Row lights up like a selected editor line, with an accent edge. (The one you did not like.)',
+      'slide': 'Row slides right and an accent tick appears.'
+    },
+    load: {
+      'none': 'Nothing moves on load. The page is simply there.',
+      'boot': 'Build facts type in one by one, then the status dot comes on. About one second.',
+      'settle': 'The headline rises out of a mask line by line, then the intro fades in.',
+      'scan': 'One accent beam passes down the page once, like a scanner warming up.'
+    }
+  };
+
+  var measured = [
+    ['Inter','400',23.1,34.2],['Inter','400–800',47.1,83.1],['Inter Tight','400–800',43.8,87.7],['Geist','400–800',28.7,16.1],
+    ['Space Grotesk','400–700',21.8,18.5],['Manrope','400–800',24.3,14.8],['IBM Plex Sans','400–700',44.6,30.2],['Schibsted Grotesk','400–800',45.7,20.4],
+    ['Instrument Sans','400–700',29.4,10.9],['Onest','400–800',33.0,27.8],['Bricolage Grotesque','400–800',40.4,18.2],['Hanken Grotesk','400–800',33.9,19.1],
+    ['Figtree','400–800',19.7,10.0],['DM Sans','400–800',36.1,17.8],['Public Sans','400–800',26.2,18.0],['Mona Sans','400–800',38.9,15.2],
+    ['Atkinson Hyperlegible Next','400–800',33.2,18.6],['JetBrains Mono','400',20.7,7.2],['JetBrains Mono','400–800',30.7,11.4],['Geist Mono','400–800',22.6,14.4],
+    ['IBM Plex Mono','400',14.4,13.0],['IBM Plex Mono','400 + 700',28.9,26.1],['Martian Mono','400–800',23.0,15.5],['Space Mono','400 + 700',32.5,30.9],
+    ['Red Hat Mono','400–700',21.9,11.4],['DM Mono','400 + 500',29.1,18.7],['Fira Code','400–700',35.4,13.0],['Source Code Pro','400–800',21.5,32.8],
+    ['Spline Sans Mono','400–700',35.6,20.3],['Azeret Mono','400–800',25.6,14.5],['Newsreader','400–700',56.7,35.4],['Source Serif 4','400–700',49.7,41.2]
+  ];
+  var tb = document.getElementById('measure-rows');
+  measured.forEach(function (m) {
+    var tr = document.createElement('tr');
+    [m[0], m[1], m[2].toFixed(1) + ' KB', m[3].toFixed(1) + ' KB'].forEach(function (v) {
+      var td = document.createElement('td'); td.textContent = v; tr.appendChild(td);
+    });
+    tb.appendChild(tr);
+  });
+
+  var sites = document.querySelectorAll('#signal .a-site');
+  var lab = document.getElementById('lab');
+  function apply(name, value) {
+    sites.forEach(function (s) { s.setAttribute('data-' + name, value); });
+    document.getElementById(name + '-hint').innerHTML = hints[name][value];
+  }
+  function replay() {
+    sites.forEach(function (s) {
+      var v = s.getAttribute('data-load');
+      s.style.setProperty('--h', s.offsetHeight + 'px');
+      s.setAttribute('data-load', 'none');
+      void s.offsetWidth;
+      s.setAttribute('data-load', v);
+    });
+  }
+  /* ---- accent colour: bright value for dark mode, deep value for light mode ---- */
+  var PRESETS = {
+    amber: ['#ffb340', '#9a5600'], cobalt: ['#6ea8ff', '#1d5bd8'], cyan: ['#3fe0d0', '#08756d'],
+    violet: ['#a990ff', '#6a3fd6'], magenta: ['#ff5fb0', '#b3166e'], coral: ['#ff7a59', '#b23a1c'], yellow: ['#ffe14d', '#806500']
+  };
+  var BG_DARK = '#0d1014', BG_LIGHT = '#f5f6f8';
+  function rgb(h) { h = h.replace('#', ''); return [0, 2, 4].map(function (i) { return parseInt(h.substr(i, 2), 16); }); }
+  function hex(c) { return '#' + c.map(function (v) { return Math.round(v).toString(16).padStart(2, '0'); }).join(''); }
+  function lum(h) {
+    var c = rgb(h).map(function (v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  }
+  function ratio(a, b) { var x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+  function mix(h, toward, t) { var a = rgb(h), b = rgb(toward); return hex(a.map(function (v, i) { return v + (b[i] - v) * t; })); }
+  function fit(h, bg, toward) { var t = 0, out = h; while (ratio(out, bg) < 4.5 && t < 1) { t += 0.02; out = mix(h, toward, t); } return out; }
+  var curAcc = ['#a990ff', '#6a3fd6'];
+  function setAccent(d, l) {
+    curAcc = [d, l];
+    sites.forEach(function (s) { s.style.setProperty('--acc-d', d); s.style.setProperty('--acc-l', l); });
+    document.getElementById('accent-hint').innerHTML =
+      '<b>Dark mode ' + d + '</b> · contrast ' + ratio(d, BG_DARK).toFixed(1) + ':1 &nbsp; <b>Light mode ' + l + '</b> · contrast ' +
+      ratio(l, BG_LIGHT).toFixed(1) + ':1 &nbsp; (readable text needs at least 4.5:1)';
+  }
+  function applyAccent() {
+    var v = lab.querySelector('input[name="accent"]:checked').value;
+    if (v === 'custom') {
+      var picked = document.getElementById('accent-pick').value;
+      var d = fit(picked, BG_DARK, '#ffffff'), l = fit(picked, BG_LIGHT, '#000000');
+      document.getElementById('sw-custom').style.setProperty('--sw', picked);
+      setAccent(d, l);
+    } else { setAccent(PRESETS[v][0], PRESETS[v][1]); }
+  }
+  document.getElementById('accent-pick').addEventListener('input', function () {
+    document.getElementById('accent-custom').checked = true; applyAccent(); applyLight(); applyLede();
+  });
+
+  /* ---- intro text colour: a second, calmer colour beside the accent ---- */
+  var LEDE = {
+    muted: ['#8d95a3', '#5a6270'], amber: ['#ffb340', '#874b00'], bright: ['#c9ced6', '#2f343c'], mint: ['#7ee3c6', '#0e6e58'],
+    sand: ['#e8d5a9', '#75582a'], ice: ['#a9d4ff', '#24578f'], pink: ['#ffb3d9', '#9b2f69']
+  };
+  function applyLede() {
+    var v = lab.querySelector('input[name="lede"]:checked').value, p = LEDE[v];
+    sites.forEach(function (s) {
+      s.setAttribute('data-rowdesc', v === 'muted' ? 'muted' : 'color');
+      s.style.setProperty('--lede-d', p[0]); s.style.setProperty('--lede-l', p[1]);
+    });
+    document.getElementById('lede-hint').innerHTML =
+      (v === 'muted'
+        ? 'Title in the accent, text under it stays grey. '
+        : 'Title and text under it in this colour while the row is selected; the tint and edge stay in the accent. ') +
+      '<b>Dark mode ' + p[0] + '</b> contrast ' + ratio(p[0], mix(BG_DARK, curAcc[0], 0.11)).toFixed(2) + ':1 &nbsp; <b>light mode ' + p[1] +
+      '</b> contrast ' + ratio(p[1], mix(BG_LIGHT, curAcc[1], 0.11)).toFixed(2) + ':1, measured on the tinted selected-row background (needs 4.5).';
+  }
+  var NAV_HINTS = {
+    geist: 'Same font as the body text. What you saw before.',
+    mono: 'Geist Mono at normal size. Matches the VH/dev mark and the code, still easy to scan.',
+    caps: 'Geist Mono in small capitals with wide spacing, like the PROJECTS and build-strip labels. The most "instrument panel" option.',
+    path: 'Lowercase Geist Mono with a slash before each item: /writing /projects /about. Echoes the VH/dev mark and the URL. (Hidden while Brackets is selected, because both use the same spot.)',
+    system: 'The OS sans-serif (San Francisco, Segoe UI, Cantarell…). Neutral, a bit different on each computer.'
+  };
+  function applyNav() {
+    var v = lab.querySelector('input[name="nav"]:checked').value;
+    sites.forEach(function (s) { s.setAttribute('data-nav', v); });
+    document.getElementById('nav-hint').textContent = NAV_HINTS[v];
+  }
+
+  var CODE_HINTS = {
+    'geist-mono': '<b>+0 KB.</b> Code uses Geist Mono, already loaded for the labels.',
+    'jbm': '<b>+20.7 KB EN · +27.8 KB PL</b> (regular weight, measured). Downloaded only on pages that contain code; home and about never fetch it. Two monospace faces on one page: compare the build strip with the code block.',
+    'jbm-all': '<b>Geist + JetBrains Mono: 59.4 KB EN · 86.8 KB PL</b> (vs 51.3 · 81.7 with Geist Mono). JetBrains Mono replaces Geist Mono everywhere: labels, menu, mark and code. One monospace face instead of two.'
+  };
+  function applyCode() {
+    var v = lab.querySelector('input[name="code"]:checked').value;
+    sites.forEach(function (s) { s.setAttribute('data-code', v); });
+    document.getElementById('code-hint').innerHTML = CODE_HINTS[v];
+  }
+
+  var TOGGLE_HINTS = {
+    'eclipse-label': 'The eclipse inside a bordered pill with the current theme written next to it (LIGHT / DARK). Following NN/g: icons need a visible text label. About 3× the clickable area of the small eclipse.',
+    seg: 'Both choices always visible, the current one filled. Research on theme toggles recommends this because nobody has to guess whether the icon shows where you are or where you will go.',
+    'eclipse-pill': 'The eclipse at 38 px inside a thin ring that glows in the accent on hover. Easier to spot and hit, still icon-only.',
+    round: 'The circle-and-half icon from before.',
+    bulb: 'A light bulb: glowing in the accent colour in the light theme ("lights on"), dark outline in the dark theme ("lights off"). Same size as the old button.',
+    hang: 'The bulb hangs on a thin cord from the build strip. Clicking it tugs the cord down and lets it swing back, like a pull-cord lamp. The most playful option.',
+    eclipse: 'A sun whose rays retract while a moon slides over it in the dark theme. Calm and precise.',
+    text: 'MODE/LIGHT ↔ MODE/DARK in the same MONO CAPS style as the menu. The word flips like the Readout rows. The most consistent with the rest of Signal.'
+  };
+  function applyToggle() {
+    var v = lab.querySelector('input[name="toggle"]:checked').value;
+    sites.forEach(function (s) { s.setAttribute('data-toggle', v); });
+    var vt = document.getElementById('vt-toggle').checked;
+    sites.forEach(function (s) { s.setAttribute('data-vt', vt ? 'on' : 'off'); });
+    document.getElementById('toggle-hint').textContent = TOGGLE_HINTS[v] + (vt
+      ? (document.startViewTransition
+        ? ' Circular reveal on: the new theme grows out of the switch in a circle (View Transitions; switched off for people who prefer reduced motion).'
+        : ' Circular reveal is on, but this browser lacks View Transitions, so it switches instantly. That is the built-in fallback.')
+      : '');
+  }
+
+  function applyRow() {
+    var v = lab.querySelector('input[name="row"]:checked').value;
+    var ro = document.getElementById('readout-toggle').checked;
+    sites.forEach(function (s) { s.setAttribute('data-row', v + (ro ? ' readout' : '')); });
+    document.getElementById('row-hint').textContent = hints.row[v] +
+      (ro ? ' Readout on: status flips to the stack, date flips to reading time.' : '');
+  }
+
+  /* light mode: how the accent is used on white */
+  var LIGHT_HUES = { cobalt: '#1d5bd8', violet: '#6a3fd6', red: '#b42318' };
+  function applyLight() {
+    var v = lab.querySelector('input[name="lightacc"]:checked').value;
+    var strong = document.getElementById('lightink-toggle').checked;
+    var mode = (v === 'marker' || v === 'ink') ? v : 'hue';
+    var light = LIGHT_HUES[v] || curAcc[1];
+    sites.forEach(function (s) {
+      s.setAttribute('data-lightacc', mode);
+      s.setAttribute('data-lightink', strong ? 'strong' : 'normal');
+      s.style.setProperty('--acc-l', light);
+    });
+    var grey = strong ? '#454c58' : '#5a6270';
+    var msg = {
+      marker: 'Yellow becomes a highlighter: labels sit on a yellow chip, link and row marks are thick yellow strokes, and all text stays black. Black on yellow: ' + ratio('#121418', curAcc[0]).toFixed(1) + ':1.',
+      ink: 'No colour in light mode at all: accents become black and lines carry the structure. Yellow appears only in the dark theme.',
+      hue: 'A different accent for light mode: ' + light + ' on white is ' + ratio(light, BG_LIGHT).toFixed(1) + ':1. Dark mode stays yellow.'
+    }[mode];
+    document.getElementById('lightacc-hint').innerHTML = msg + ' &nbsp; Grey text ' + grey + ': ' + ratio(grey, BG_LIGHT).toFixed(1) + ':1' +
+      (strong ? ' (stronger; was 5.7:1).' : ' (normal).');
+  }
+
+  lab.addEventListener('change', function (e) {
+    if (e.target.name === 'row' || e.target.name === 'readout') { applyRow(); return; }
+    if (e.target.name === 'lightacc' || e.target.name === 'lightink') { applyLight(); return; }
+    if (e.target.name === 'toggle' || e.target.name === 'vt') { applyToggle(); return; }
+    if (e.target.name === 'code') { applyCode(); return; }
+    if (e.target.name === 'lede') { applyLede(); return; }
+    if (e.target.name === 'nav') { applyNav(); return; }
+    if (e.target.name === 'accent' || e.target.id === 'accent-pick') { applyAccent(); applyLight(); applyLede(); return; }
+    if (e.target.name === 'caret') { sites.forEach(function (s) { s.setAttribute('data-caret', e.target.checked ? 'on' : 'off'); }); return; }
+    apply(e.target.name, e.target.value);
+    if (e.target.name === 'load') replay();
+  });
+  applyAccent(); applyLight(); applyLede(); applyNav(); applyCode(); applyToggle();
+  lab.addEventListener('submit', function (e) { e.preventDefault(); });
+  ['font', 'link', 'load'].forEach(function (n) {
+    var checked = lab.querySelector('input[name="' + n + '"]:checked');
+    apply(n, checked.value);
+  });
+  applyRow();
+  document.getElementById('replay').addEventListener('click', replay);
+  sites.forEach(function (s) { s.style.setProperty('--h', s.offsetHeight + 'px'); });
+
+  function prefersDark() {
+    var t = document.documentElement.getAttribute('data-theme');
+    if (t === 'dark') return true;
+    if (t === 'light') return false;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  function setMode(section, mode) {
+    section.querySelectorAll('.site').forEach(function (s) { s.setAttribute('data-mode', mode); });
+    section.querySelectorAll('.seg button').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-mode') === mode));
+    });
+    var dark = mode === 'dark' || (mode === 'auto' && prefersDark());
+    section.querySelectorAll('.a-site .mode-btn').forEach(function (b) { b.setAttribute('aria-pressed', String(dark)); });
+    section.querySelectorAll('.seg-b').forEach(function (b) { b.setAttribute('aria-pressed', String((b.getAttribute('data-set') === 'dark') === dark)); });
+  }
+  /* switch theme from a mockup's own switch: optional tug + optional circular reveal */
+  function flip(section, btn, ev) {
+    var cur = section.querySelector('.site').getAttribute('data-mode');
+    var dark = cur === 'dark' || (cur === 'auto' && prefersDark());
+    switchTo(section, btn, ev, dark ? 'light' : 'dark');
+  }
+  function switchTo(section, btn, ev, next) {
+    var go = function () { setMode(section, next); };
+    var site = btn.closest('.site');
+    if (site.getAttribute('data-toggle') === 'hang') {
+      btn.classList.remove('pull'); void btn.offsetWidth; btn.classList.add('pull');
+    }
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (site.getAttribute('data-vt') !== 'on' || !document.startViewTransition || reduce) { go(); return; }
+    var r = btn.getBoundingClientRect();
+    var x = ev && ev.clientX ? ev.clientX : r.left + r.width / 2;   /* keyboard: start from the switch */
+    var y = ev && ev.clientY ? ev.clientY : r.top + r.height / 2;
+    var radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    document.startViewTransition(go).ready.then(function () {
+      document.documentElement.animate(
+        { clipPath: ['circle(0px at ' + x + 'px ' + y + 'px)', 'circle(' + radius + 'px at ' + x + 'px ' + y + 'px)'] },
+        { duration: 550, easing: 'cubic-bezier(.4,0,.2,1)', pseudoElement: '::view-transition-new(root)' });
+    });
+  }
+  document.querySelectorAll('.direction').forEach(function (section) {
+    section.querySelectorAll('.seg button').forEach(function (b) {
+      b.addEventListener('click', function () { setMode(section, b.getAttribute('data-mode')); });
+    });
+    section.querySelectorAll('.mode-btn').forEach(function (b) {
+      b.addEventListener('click', function (ev) { flip(section, b, ev); });
+    });
+    section.querySelectorAll('.seg-b').forEach(function (b) {
+      b.addEventListener('click', function (ev) { switchTo(section, b, ev, b.getAttribute('data-set')); });
+    });
+    setMode(section, section.querySelector('.site').getAttribute('data-mode'));
+  });
+})();
+</script>

@@ -39,7 +39,7 @@ flowchart LR
 | `data/` | Structured data (GitHub repos JSON, curated project list), from step 2.2 |
 | `infra/ansible/` | Server provisioning and hardening |
 | `.github/workflows/` | CI (build/check), deploy from step 1.4 |
-| `docs/` | This file, roadmap, decisions (ADRs), research, content guide, runbooks |
+| `docs/` | This file, roadmap, decisions (ADRs), research, design spec + lab, content guide, runbooks |
 | `.claude/` | Claude Code permissions and custom slash commands |
 
 ## Decisions
