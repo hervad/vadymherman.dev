@@ -45,4 +45,4 @@ flowchart LR
 ## Decisions
 
 See `docs/decisions/`. Current: 0001 Hugo, 0002 Caddy, 0003 AlmaLinux, 0004 OVHcloud Warsaw,
-0005 no CDN at launch, 0006 pinned tool checksums.
+0005 no CDN at launch, 0006 pinned tool checksums, 0007 licensing.

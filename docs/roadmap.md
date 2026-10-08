@@ -14,7 +14,7 @@ what you learn, and how we know it's done. Steps marked **(you)** are things onl
   - Done when: `make serve` shows the site at localhost:1313 and you can explain the folders.
   - Research fixes: retag inventory IP `TODO(0.3)`; replace deprecated `site.Language.Lang` in
     baseof.html (no build warning for it); verify Hugo/Pagefind checksums in install-tools.sh.
-- [ ] **0.2 GitHub repo + CI. (you + Claude)** Create the GitHub repo, push, CI goes green.
+- [x] **0.2 GitHub repo + CI. (you + Claude)** Create the GitHub repo, push, CI goes green.
   - Learn: what GitHub Actions does on each push; reading a workflow file.
   - Done when: the CI badge is green and the `public` artifact downloads.
   - Research fixes: actions v4 → current, pinned by commit SHA; `persist-credentials: false`;
