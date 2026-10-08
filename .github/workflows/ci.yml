@@ -1,0 +1,40 @@
+# CI: build the site exactly like `make check` does on your laptop.
+# Deploy is added in step 1.4 (separate job, main branch only).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Load pinned tool versions
+        run: cat versions.env >> "$GITHUB_ENV"
+
+      - name: Install Hugo ${{ env.HUGO_VERSION }}
+        run: ./scripts/install-tools.sh
+
+      - name: Strict build + checks
+        env:
+          HUGO_PARAMS_BUILDSHA: ${{ github.sha }}
+        run: make check
+
+      - name: Upload built site
+        uses: actions/upload-artifact@v4
+        with:
+          name: public
+          path: public/
+          retention-days: 7

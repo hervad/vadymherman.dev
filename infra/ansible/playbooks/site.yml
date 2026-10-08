@@ -1,0 +1,14 @@
+# The whole server, top to bottom. Safe to re-run any time (idempotent):
+# running it twice should report "changed=0" the second time.
+#
+# Dry run first:  make ansible-check
+# Apply:          cd infra/ansible && ansible-playbook playbooks/site.yml
+- name: Configure web server
+  hosts: all
+  become: true
+  roles:
+    - base        # 1.3a packages, time, automatic security updates
+    - users_ssh   # 1.3b admin + deploy users, sshd hardening
+    - firewall    # 1.3c firewalld: ssh, http, https (+ UDP 443 for HTTP/3)
+    - selinux     # 1.3d enforcing + file labels for the site root
+    - caddy       # 1.3e web server, TLS, headers, precompressed files

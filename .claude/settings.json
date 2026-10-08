@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(make serve)",
+      "Bash(make build)",
+      "Bash(make check)",
+      "Bash(make clean)",
+      "Bash(make tools)",
+      "Bash(make i18n-check)",
+      "Bash(make ansible-lint)",
+      "Bash(./.bin/hugo:*)",
+      "Bash(git status)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(ansible-playbook playbooks/site.yml --syntax-check)"
+    ],
+    "ask": [
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(make ansible-check)",
+      "Bash(ansible-playbook:*)",
+      "Bash(ssh:*)",
+      "Bash(scp:*)",
+      "Bash(rsync:*)",
+      "Bash(curl:*)",
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(pip:*)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./**/.env)",
+      "Read(./infra/ansible/.vault_pass)",
+      "Read(./infra/ansible/**/*.vault.yml)",
+      "Read(~/.ssh/**)"
+    ]
+  }
+}

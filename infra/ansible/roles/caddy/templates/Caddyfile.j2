@@ -1,0 +1,45 @@
+# {{ ansible_managed }}
+# DRAFT from the research report. Reviewed and finalized in step 1.3e.
+# Content-Security-Policy is added in step 1.6, once we know every script the site uses.
+{
+	email {{ site_admin_email }}
+}
+
+www.{{ site_domain }} {
+	redir https://{{ site_domain }}{uri} permanent
+}
+
+{{ site_domain }} {
+	root * {{ site_root }}/current
+
+	# Serve the .br / .zst / .gz files CI built ahead of time (no CPU per request),
+	# fall back to on-the-fly compression for anything else.
+	file_server {
+		precompressed br zstd gzip
+	}
+	encode zstd gzip
+
+	@fingerprinted path_regexp \.[0-9a-f]{16,}\.(css|js|woff2|avif|webp|jpg|png|svg)$
+	header @fingerprinted Cache-Control "public, max-age=31536000, immutable"
+
+	header {
+		Strict-Transport-Security "max-age=63072000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		Cross-Origin-Opener-Policy "same-origin"
+		-Server
+	}
+
+	handle_errors {
+		rewrite * /en/404.html
+		file_server
+	}
+
+	log {
+		output file /var/log/caddy/{{ site_domain }}.json {
+			roll_keep 14
+		}
+		format json
+	}
+}

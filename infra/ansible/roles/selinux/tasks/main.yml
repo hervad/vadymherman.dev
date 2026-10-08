@@ -1,0 +1,6 @@
+# Role: selinux (roadmap step 1.3)
+# Purpose: SELinux enforcing; semanage fcontext httpd_sys_content_t for site_root; restorecon.
+# Status: SKELETON. Claude implements this with you in step 1.3; see docs/roadmap.md.
+- name: "selinux | not implemented yet"
+  ansible.builtin.debug:
+    msg: "Role selinux is a skeleton. Implement it in roadmap step 1.3."

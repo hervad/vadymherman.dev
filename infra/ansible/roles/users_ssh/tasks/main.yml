@@ -1,0 +1,6 @@
+# Role: users_ssh (roadmap step 1.3)
+# Purpose: Admin user (sudo) and deploy user (no sudo, restricted to site_root/releases), SSH key-only, no root login, AllowUsers.
+# Status: SKELETON. Claude implements this with you in step 1.3; see docs/roadmap.md.
+- name: "users_ssh | not implemented yet"
+  ansible.builtin.debug:
+    msg: "Role users_ssh is a skeleton. Implement it in roadmap step 1.3."

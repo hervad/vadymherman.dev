@@ -1,0 +1,2 @@
+# Handlers for the caddy role (e.g. restart sshd), triggered with notify:.
+[]

@@ -1,0 +1,17 @@
+# Build output (always reproducible from source)
+/public/
+/resources/_gen/
+.hugo_build.lock
+
+# Pinned tool binaries (install with `make tools`)
+/.bin/
+
+# Secrets: never commit
+.env
+*.vault-pass
+.vault_pass*
+infra/ansible/.vault_pass
+
+# Editor / OS
+.DS_Store
+*.swp

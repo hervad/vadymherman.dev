@@ -1,0 +1,2 @@
+# Default variables for the users_ssh role (lowest precedence; override in group_vars).
+{}

@@ -1,0 +1,19 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} | {{ site.Title }}{{ end }}</title>
+<meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ with .Summary }}{{ . | plainify | truncate 160 }}{{ else }}{{ site.Params.description }}{{ end }}{{ end }}">
+<link rel="canonical" href="{{ .Permalink }}">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+{{- /* Build SHA: CI sets HUGO_PARAMS_BUILDSHA so smoke tests can confirm which release is live. */}}
+{{- with site.Params.buildsha }}<meta name="build" content="{{ . }}">{{ end }}
+
+{{- /* Inline the whole stylesheet: one fewer render-blocking request.
+       Switch to an external fingerprinted file only if CSS grows past ~14 KB. */}}
+{{- with resources.Get "css/main.css" | minify }}
+<style>{{ .Content | safeCSS }}</style>
+{{- end }}
+
+{{- range .AlternativeOutputFormats -}}
+<link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink }}" title="{{ site.Title }}">
+{{- end }}

@@ -1,0 +1,51 @@
+# Hugo configuration. Read docs/architecture.md for the big picture.
+# TODO(0.3): replace example.dev with your real domain once registered.
+baseURL = "https://example.dev/"
+title = "Vadym Herman"
+
+# Every language lives under its own folder: /en/..., /pl/...
+# Configured from day one so adding Polish later never changes an existing URL.
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+
+enableRobotsTXT = true
+enableGitInfo = false   # flip to true later for automatic "last updated" dates
+
+[languages]
+  [languages.en]
+    label = "English"
+    locale = "en-US"
+    contentDir = "content/en"
+    weight = 1
+  [languages.pl]
+    label = "Polski"
+    locale = "pl-PL"
+    contentDir = "content/pl"
+    weight = 2
+    # Polish is switched off until step 2.1 (bilingual). Flip to false then.
+    disabled = true
+
+[taxonomies]
+  tag = "tags"
+
+[outputs]
+  home = ["html", "rss"]
+  section = ["html", "rss"]
+  taxonomy = ["html"]
+  term = ["html", "rss"]
+
+[markup]
+  [markup.goldmark.renderer]
+    unsafe = false          # raw HTML in Markdown stays disabled (safer)
+  [markup.highlight]
+    noClasses = false       # emit CSS classes so light/dark code themes work
+    lineNos = false
+
+[params]
+  description = "Systems engineer working on Linux, KVM and platform reliability. Notes from the job and the projects around it."
+  author = "Vadym Herman"
+  github = "https://github.com/hervad"
+  linkedin = "https://www.linkedin.com/in/vadym-herman"
+
+[sitemap]
+  changeFreq = "weekly"

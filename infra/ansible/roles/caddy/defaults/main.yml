@@ -1,0 +1,2 @@
+# Default variables for the caddy role (lowest precedence; override in group_vars).
+{}

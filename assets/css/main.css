@@ -1,0 +1,73 @@
+/*
+  Baseline stylesheet: readable, accessible, deliberately plain.
+  The real visual identity is designed in roadmap step 1.2 (see docs/design-brief.md).
+  Rules: system fonts only, no external requests, keep this file under ~14 KB.
+*/
+
+:root {
+  color-scheme: light dark;
+
+  --bg:      light-dark(#ffffff, #16181c);
+  --fg:      light-dark(#1d1f23, #e4e6ea);
+  --muted:   light-dark(#5a606b, #a0a6b0);
+  --link:    light-dark(#1f5fbf, #8ab4f8);
+  --border:  light-dark(#e2e4e8, #2c3036);
+  --code-bg: light-dark(#f4f5f7, #1f2227);
+
+  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+  --font-mono: ui-monospace, "Cascadia Code", "JetBrains Mono", Menlo, Consolas, monospace;
+
+  --measure: 68ch;
+  --space: 1.5rem;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  font-family: var(--font-body);
+  font-size: 100%;
+  line-height: 1.6;
+  background: var(--bg);
+  color: var(--fg);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0 auto;
+  max-width: var(--measure);
+  padding: var(--space);
+  font-size: 1.0625rem;
+}
+
+h1, h2, h3 { line-height: 1.25; text-wrap: balance; }
+p, li { text-wrap: pretty; }
+:lang(pl) { hyphens: auto; }
+
+a { color: var(--link); text-underline-offset: 0.15em; }
+a:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+img { max-width: 100%; height: auto; }
+
+code, pre { font-family: var(--font-mono); font-size: 0.9em; }
+pre { background: var(--code-bg); padding: 1rem; overflow-x: auto; border-radius: 4px; }
+
+.skip-link { position: absolute; left: -9999px; }
+.skip-link:focus { left: var(--space); top: var(--space); background: var(--bg); padding: 0.5rem; }
+
+.site-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 1rem; margin-bottom: 2rem; }
+.site-header nav ul { display: flex; gap: 1rem; list-style: none; margin: 0; padding: 0; }
+.site-title { font-weight: 700; text-decoration: none; color: var(--fg); }
+[aria-current="page"] { font-weight: 600; }
+
+.post-list { list-style: none; padding: 0; }
+.post-list li { display: flex; justify-content: space-between; gap: 1rem; padding: 0.4rem 0; border-bottom: 1px solid var(--border); }
+.post-list time, .meta { color: var(--muted); font-size: 0.9em; white-space: nowrap; }
+
+.tags { display: flex; flex-wrap: wrap; gap: 0.5rem; list-style: none; padding: 0; }
+
+.site-footer { margin-top: 4rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--muted); }
+.site-footer p { display: flex; gap: 1rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}

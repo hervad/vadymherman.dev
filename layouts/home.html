@@ -1,0 +1,19 @@
+{{ define "main" }}
+<section class="intro">
+  {{ .Content }}
+</section>
+
+<section aria-labelledby="latest">
+  <h2 id="latest">{{ i18n "latestPosts" }}</h2>
+  {{- $posts := where site.RegularPages "Section" "blog" }}
+  {{- with first 5 $posts }}
+  <ul class="post-list">
+    {{- range . }}
+    {{ partial "post-item.html" . }}
+    {{- end }}
+  </ul>
+  {{- else }}
+  <p>{{ i18n "noPostsYet" }}</p>
+  {{- end }}
+</section>
+{{ end }}

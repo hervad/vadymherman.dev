@@ -1,0 +1,2 @@
+# Handlers for the users_ssh role (e.g. restart sshd), triggered with notify:.
+[]

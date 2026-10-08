@@ -1,0 +1,2 @@
+# Handlers for the base role (e.g. restart sshd), triggered with notify:.
+[]

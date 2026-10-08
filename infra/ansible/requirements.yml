@@ -1,0 +1,4 @@
+# Install with: ansible-galaxy collection install -r requirements.yml
+collections:
+  - name: ansible.posix       # firewalld, selinux booleans, authorized_key, synchronize
+  - name: community.general   # copr module (for the Caddy package), misc helpers

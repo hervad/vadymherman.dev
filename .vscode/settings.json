@@ -1,0 +1,22 @@
+{
+  "files.associations": {
+    "layouts/**/*.html": "gohtml",
+    "infra/ansible/**/*.yml": "ansible"
+  },
+  "files.exclude": {
+    "public": true,
+    "resources/_gen": true,
+    ".bin": true
+  },
+  "search.exclude": {
+    "public": true,
+    "resources": true
+  },
+  "editor.rulers": [100],
+  "cSpell.language": "en,pl",
+  "[markdown]": {
+    "editor.wordWrap": "on",
+    "editor.quickSuggestions": { "other": false, "comments": false, "strings": false }
+  },
+  "ansible.python.interpreterPath": "/usr/bin/python3"
+}

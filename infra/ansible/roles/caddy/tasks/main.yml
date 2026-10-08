@@ -1,0 +1,6 @@
+# Role: caddy (roadmap step 1.3)
+# Purpose: Install Caddy from the @caddy/caddy COPR, template the Caddyfile, systemd hardening drop-in, create site_root/releases + current symlink.
+# Status: SKELETON. Claude implements this with you in step 1.3; see docs/roadmap.md.
+- name: "caddy | not implemented yet"
+  ansible.builtin.debug:
+    msg: "Role caddy is a skeleton. Implement it in roadmap step 1.3."

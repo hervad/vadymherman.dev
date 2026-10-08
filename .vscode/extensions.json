@@ -1,0 +1,15 @@
+{
+  "recommendations": [
+    "anthropic.claude-code",
+    "budparr.language-hugo-vscode",
+    "tamasfe.even-better-toml",
+    "redhat.vscode-yaml",
+    "redhat.ansible",
+    "davidanson.vscode-markdownlint",
+    "streetsidesoftware.code-spell-checker",
+    "streetsidesoftware.code-spell-checker-polish",
+    "editorconfig.editorconfig",
+    "github.vscode-github-actions",
+    "bierner.markdown-mermaid"
+  ]
+}
