@@ -1,6 +1,6 @@
 # 0004. Hosting: OVHcloud VPS in Warsaw
 
-- Status: proposed (confirm price/specs at checkout in step 0.3)
+- Status: superseded by 0008 (audience is Europe + North America; EU locations sold out on 2026-10-08)
 - Date: 2026-10-07
 
 ## Context

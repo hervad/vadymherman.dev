@@ -60,7 +60,7 @@ Yellow is a dark-background colour; light mode gets its own accent instead.
 | Polish (latin + latin-ext) | 44.8 KB | 36.9 KB | 27.8 KB, code pages only | 81.7 KB, 109.5 KB with code |
 
 Self-hosted (no CDN), split by `unicode-range` so English pages never download Polish glyphs,
-`font-display: swap`. Fonts are new to this project: needs ADR 0008 before step 1.2 adds them.
+`font-display: swap`. Fonts are new to this project: needs ADR 0009 before step 1.2 adds them.
 
 ## Layout
 

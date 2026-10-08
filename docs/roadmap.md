@@ -22,7 +22,7 @@ what you learn, and how we know it's done. Steps marked **(you)** are things onl
     Unverified (found in 0.1): `cat versions.env >> "$GITHUB_ENV"` may reject the `#` comment
     lines; if the first run fails there, append only `NAME=value` lines.
 - [ ] **0.3 Domain + VPS. (you)** Register the domain (Cloudflare Registrar, .dev), order the VPS
-  (OVHcloud VPS-1, Warsaw, AlmaLinux 10), add your SSH key. Claude then replaces every placeholder.
+  (OVHcloud VPS-1, Beauharnois per ADR 0008, AlmaLinux 10), add your SSH key. Claude then replaces every placeholder.
   - Learn: DNS records (A, AAAA, CAA), what a registrar vs a DNS host does.
   - Done when: `ssh` works with your key, `dig +short yourdomain` returns the VPS IP, no
     `example.dev` left in the repo.
@@ -38,7 +38,7 @@ what you learn, and how we know it's done. Steps marked **(you)** are things onl
   toggle and a /styleguide/ page (draft, not in nav) showing every element in both themes.
   - Done when: Lighthouse accessibility 100, both themes checked, CSS < 14 KB.
   - Design decided 2026-10-08 (Signal): build from docs/design-spec.md; lab in docs/design/.
-    Needs ADR 0008 (self-hosted Geist, Geist Mono, JetBrains Mono) before adding fonts.
+    Needs an ADR (0009: self-hosted Geist, Geist Mono, JetBrains Mono) before adding fonts.
   - Research fixes: home page `<h1>`; Chroma CSS (dark styles keyed to the toggle's class);
     monospace size inside `pre`; `:focus-visible` beyond links; nav wraps; reduced-motion covers
     pseudo-elements. Direction: bearblog/danluu weight, tonsky/brandur personality.

@@ -8,7 +8,7 @@ flowchart LR
     gh --> ci["GitHub Actions<br/>fetch GitHub data → hugo build<br/>→ pagefind → precompress → checks"]
     ci -->|"rsync over SSH<br/>(restricted deploy key)"| vps
 
-    subgraph vps["VPS: AlmaLinux 10, OVHcloud Warsaw"]
+    subgraph vps["VPS: AlmaLinux 10, OVHcloud Beauharnois (CA)"]
         caddy["Caddy<br/>HTTPS, HTTP/3, headers,<br/>precompressed files"] --> current["/srv/site/current →<br/>releases/&lt;sha&gt;/"]
         caddy --> goat["GoatCounter<br/>(localhost only)"]
     end
@@ -44,5 +44,5 @@ flowchart LR
 
 ## Decisions
 
-See `docs/decisions/`. Current: 0001 Hugo, 0002 Caddy, 0003 AlmaLinux, 0004 OVHcloud Warsaw,
-0005 no CDN at launch, 0006 pinned tool checksums, 0007 licensing.
+See `docs/decisions/`. Current: 0001 Hugo, 0002 Caddy, 0003 AlmaLinux, 0004 OVHcloud Warsaw (superseded),
+0005 no CDN at launch, 0006 pinned tool checksums, 0007 licensing, 0008 OVHcloud Beauharnois.
