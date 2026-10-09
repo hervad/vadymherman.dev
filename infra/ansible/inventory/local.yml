@@ -1,0 +1,8 @@
+# Local KVM twin of the VPS (step 1.3): AlmaLinux 10 cloud image + cloud-init, created with
+# virt-install on Kai's desktop. Every role is proven here before it touches production.
+# The address comes from libvirt's DHCP; after a reset check it with: virsh domifaddr vh-lab
+all:
+  hosts:
+    vh-lab:
+      ansible_host: 192.168.122.176
+      ansible_user: kai                 # until users_ssh has run: -e ansible_user=almalinux

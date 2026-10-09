@@ -3,4 +3,4 @@ all:
   hosts:
     web1:
       ansible_host: 192.99.43.201
-      ansible_user: admin               # created by the users_ssh role (1.3); until then only the image's "almalinux" user exists
+      ansible_user: kai                 # created by the users_ssh role (1.3); until then only the image's "almalinux" user exists

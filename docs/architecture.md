@@ -4,7 +4,7 @@
 
 ```mermaid
 flowchart LR
-    dev["Laptop (Fedora)<br/>VS Code + Claude Code<br/>make serve / make check"] -->|git push| gh["GitHub repo"]
+    dev["Desktop (Fedora)<br/>VS Code + Claude Code<br/>make serve / make check<br/>KVM lab VM (vh-lab)"] -->|git push| gh["GitHub repo"]
     gh --> ci["GitHub Actions<br/>fetch GitHub data → hugo build<br/>→ pagefind → precompress → checks"]
     ci -->|"rsync over SSH<br/>(restricted deploy key)"| vps
 

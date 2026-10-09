@@ -5,6 +5,8 @@
 
 # Pinned tool binaries (install with `make tools`)
 /.bin/
+# Ansible collections (install with `make ansible-deps`, versions pinned in requirements.yml)
+infra/ansible/collections/
 
 # Secrets: never commit
 .env

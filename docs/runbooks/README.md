@@ -6,3 +6,4 @@ Written in step 3.4. Each runbook: symptoms → how to confirm → fix → how t
 - cert-renewal-failed.md
 - disk-full.md
 - rollback.md (written in step 1.4, since rollback ships with the deploy pipeline)
+- lab-vm.md: the local KVM twin of the VPS used to test Ansible roles (step 1.3; exists)

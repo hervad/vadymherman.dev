@@ -1,0 +1,16 @@
+# Non-secret settings shared by every role and both inventories (production, local).
+# Secrets go next to this file in secrets.vault.yml (ansible-vault); every file in group_vars/all/ is loaded.
+
+site_domain: vadymherman.dev
+site_admin_email: admin@vadymherman.dev  # ACME account contact for Caddy; Cloudflare Email Routing forwards it
+site_root: /srv/site                    # releases/<sha>/ live here, current is a symlink
+
+admin_user: kai                         # you (same name as on the laptop); sudo, SSH key only
+deploy_user: deploy                     # CI; no sudo, can only write to site_root/releases
+
+timezone: Europe/Warsaw
+
+# SSH connection: the key made in step 0.3 (a path, not a secret), and only that key
+# (IdentitiesOnly), so SSH doesn't offer every key in ~/.ssh to the server.
+ansible_ssh_private_key_file: ~/.ssh/vadymherman_vps
+ansible_ssh_common_args: "-o IdentitiesOnly=yes"
