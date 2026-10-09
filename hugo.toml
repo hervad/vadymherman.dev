@@ -1,6 +1,5 @@
 # Hugo configuration. Read docs/architecture.md for the big picture.
-# TODO(0.3): replace example.dev with your real domain once registered.
-baseURL = "https://example.dev/"
+baseURL = "https://vadymherman.dev/"
 title = "Vadym Herman"
 
 # Every language lives under its own folder: /en/..., /pl/...

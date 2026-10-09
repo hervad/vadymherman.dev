@@ -30,6 +30,13 @@ OVHcloud VPS-1 2027 in Beauharnois (Canada East), AlmaLinux 10, no fixed term.
 19.20 zł net / **23.62 zł gross per month** (automated standard backup included free as a promotion).
 Paid by a saved payment method so monthly renewals are automatic.
 
+Server: IPv4 192.99.43.201, IPv6 2607:5300:205:200::ce3d (both checked working on 2026-10-09).
+
+Domains (Cloudflare Registrar, auto-renew on, DNS at Cloudflare with the proxy off per ADR 0005):
+- `vadymherman.dev`: $8.20 first year (promo), renews at $12.20/year; expires 2027-10-08.
+- `vadymherman.com`: $10.46/year, registered for 3 years (expires 2029-10-08); redirects to
+  `.dev` from step 1.3. Sends no mail: null MX, `v=spf1 -all`, DMARC `p=reject`.
+
 ## Consequences
 - ADR 0005 (no CDN at launch) still holds; step 3.6 measures whether a CDN is worth it for both
   continents.

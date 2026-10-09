@@ -1,7 +1,7 @@
 # Non-secret settings shared by every role. Secrets go in all.vault.yml (ansible-vault).
 
-site_domain: example.dev               # TODO(0.3): your real domain
-site_admin_email: you@example.com       # TODO(0.3): used by Caddy for Let's Encrypt notices
+site_domain: vadymherman.dev
+site_admin_email: admin@vadymherman.dev  # ACME account contact for Caddy; Cloudflare Email Routing forwards it
 site_root: /srv/site                    # releases/<sha>/ live here, current is a symlink
 
 admin_user: admin                       # you; sudo, SSH key only

@@ -1,6 +1,6 @@
-# TODO(0.3): fill in once the VPS exists (step 0.3 replaces every placeholder).
+# OVHcloud VPS-1, Beauharnois (ADR 0008). IPv6: 2607:5300:205:200::ce3d
 all:
   hosts:
     web1:
-      ansible_host: 203.0.113.10       # placeholder (TEST-NET-3), replace with the VPS IPv4
-      ansible_user: admin               # created on first boot / by the users_ssh role
+      ansible_host: 192.99.43.201
+      ansible_user: admin               # created by the users_ssh role (1.3); until then only the image's "almalinux" user exists

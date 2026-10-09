@@ -64,7 +64,7 @@ Self-hosted (no CDN), split by `unicode-range` so English pages never download P
 
 ## Layout
 
-- **Build strip** (top): `BUILD <sha> · ORIGIN WAW · PAGE <size> · PROTO h3` and a green
+- **Build strip** (top): `BUILD <sha> · ORIGIN BHS · PAGE <size> · PROTO h3` and a green
   "nominal" dot. Values come from the real build (Hugo + CI).
 - **Nav:** `VH/dev` mark left (slash in the accent), menu right, theme switch at the end.
 - **Home:** eyebrow `LINUX · KVM · PLATFORM RELIABILITY`, two-line name headline, one-sentence

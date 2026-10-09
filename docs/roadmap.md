@@ -21,7 +21,7 @@ what you learn, and how we know it's done. Steps marked **(you)** are things onl
     pin `ubuntu-24.04`; `timeout-minutes`; add `.github/dependabot.yml` for github-actions.
     Unverified (found in 0.1): `cat versions.env >> "$GITHUB_ENV"` may reject the `#` comment
     lines; if the first run fails there, append only `NAME=value` lines.
-- [ ] **0.3 Domain + VPS. (you)** Register the domain (Cloudflare Registrar, .dev), order the VPS
+- [x] **0.3 Domain + VPS. (you)** Register the domain (Cloudflare Registrar, .dev), order the VPS
   (OVHcloud VPS-1, Beauharnois per ADR 0008, AlmaLinux 10), add your SSH key. Claude then replaces every placeholder.
   - Learn: DNS records (A, AAAA, CAA), what a registrar vs a DNS host does.
   - Done when: `ssh` works with your key, `dig +short yourdomain` returns the VPS IP, no
@@ -53,6 +53,12 @@ what you learn, and how we know it's done. Steps marked **(you)** are things onl
     check `ls -Z`, `ps -eZ`); Caddy from COPR; firewalld `http3` service; Caddyfile: `file`
     condition on the immutable matcher, HTML `Cache-Control`, headers on error pages,
     `handle_errors 404`, `redir / /en/`, www DNS record; plan Caddy updates (COPR has no advisories).
+  - Carried over from 0.3: bring the hand-made `/etc/ssh/sshd_config.d/01-no-passwords.conf`
+    under users_ssh (drop-ins are read alphabetically, first value wins; `50-cloud-init.conf`
+    says `yes`); the first run connects as `almalinux` (`-e ansible_user=almalinux`), later runs
+    as `admin`, then lock `almalinux` (it has passwordless sudo); add A/AAAA for
+    vadymherman.com + www together with the redirect; CAA matching the issuer set in the
+    Caddyfile; consider `timezone: UTC` (the server is in Canada, Warsaw time is misleading in logs).
 - [ ] **1.4 Deploy pipeline.** Deploy job in GitHub Actions: build → precompress (brotli, gzip) →
   rsync to releases/<sha>/ → atomic symlink switch → smoke test (build SHA meta tag) → keep last 5
   releases. Separate manual "rollback" workflow. Restricted deploy key (rrsync), pinned host key.

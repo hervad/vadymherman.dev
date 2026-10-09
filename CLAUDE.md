@@ -49,10 +49,10 @@ Work plan and progress: @docs/roadmap.md
 - Secrets: never read, print or commit them. Ansible secrets only via ansible-vault (*.vault.yml).
 - Non-trivial technical choices get an ADR in docs/decisions/ (use /decision).
 
-## Placeholders to replace (step 0.3)
+## Pending work markers
 
-`example.dev` (hugo.toml, infra/ansible/group_vars/all.yml), `you@example.com`,
-`203.0.113.10` (inventory). Search for `TODO(` to find every pending item and its roadmap step.
+Pending items are marked `TODO(<roadmap step>)` in code and config; search for `TODO(` to find them.
+Domain: vadymherman.dev (vadymherman.com redirects to it from step 1.3). VPS: 192.99.43.201.
 
 ## Definition of done (every step)
 
