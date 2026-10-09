@@ -1,0 +1,11 @@
+{{- /* Fenced code blocks as a terminal with a title bar (design spec).
+       ```bash {title="ci.yml"}  → bar shows "ci.yml" left, "bash" right.
+       ```bash                   → bar shows "bash" left.  No language, no title → no bar. */}}
+{{- $title := .Attributes.title }}
+{{- $lang := .Type }}
+<figure class="code">
+  {{- if or $title $lang }}
+  <figcaption><span>{{ or $title $lang }}</span>{{ if and $title $lang }}<span>{{ $lang }}</span>{{ end }}</figcaption>
+  {{- end }}
+  {{- (transform.HighlightCodeBlock .).Wrapped }}
+</figure>

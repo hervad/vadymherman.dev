@@ -1,0 +1,17 @@
+{{- /* Markdown tables: wrapped so a wide table scrolls sideways instead of breaking the layout on
+       phones. The wrapper is focusable (tabindex) so keyboard users can scroll it too.
+       Alignment is a class, not a style attribute, so the CSP (step 1.6) needs no unsafe-inline. */}}
+<div class="table" tabindex="0">
+<table>
+  <thead>
+    {{- range .THead }}
+    <tr>{{ range . }}<th{{ with .Alignment }} class="t-{{ . }}"{{ end }}>{{ .Text }}</th>{{ end }}</tr>
+    {{- end }}
+  </thead>
+  <tbody>
+    {{- range .TBody }}
+    <tr>{{ range . }}<td{{ with .Alignment }} class="t-{{ . }}"{{ end }}>{{ .Text }}</td>{{ end }}</tr>
+    {{- end }}
+  </tbody>
+</table>
+</div>

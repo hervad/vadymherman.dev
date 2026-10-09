@@ -25,8 +25,9 @@ see docs/design-spec.md.
 ## Files
 
 - Posts are page bundles: `content/en/blog/<slug>/index.md` with images in the same folder.
-- A Polish translation lives at `content/pl/blog/<slug-or-polish-slug>/index.md` with the same
-  `translationKey`. A post may exist in only one language; that's fine.
+- Translations live at `content/uk/blog/<slug>/index.md` (Ukrainian) and
+  `content/pl/blog/<slug>/index.md` (Polish) with the same `translationKey`. English is the
+  default. A post may exist in only one language; that's fine.
 
 ## Tags
 

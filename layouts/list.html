@@ -2,7 +2,7 @@
 <h1>{{ .Title }}</h1>
 {{ .Content }}
 {{- with .Pages }}
-<ul class="post-list">
+<ul class="rows rows-posts">
   {{- range . }}
   {{ partial "post-item.html" . }}
   {{- end }}

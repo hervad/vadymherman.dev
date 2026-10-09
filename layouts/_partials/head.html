@@ -1,5 +1,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+{{- /* Theme script first, before the CSS and any content: it must set data-theme before the first paint. */}}
+{{- with resources.Get "js/theme.js" | minify }}
+<script>{{ .Content | safeJS }}</script>
+{{- end }}
 <title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} | {{ site.Title }}{{ end }}</title>
 <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ with .Summary }}{{ . | plainify | truncate 160 }}{{ else }}{{ site.Params.description }}{{ end }}{{ end }}">
 <link rel="canonical" href="{{ .Permalink }}">
@@ -10,7 +14,8 @@
 
 {{- /* Inline the whole stylesheet: one fewer render-blocking request.
        Switch to an external fingerprinted file only if CSS grows past ~14 KB. */}}
-{{- with resources.Get "css/main.css" | minify }}
+{{- /* fonts.css (generated @font-face rules) + main.css (hand-written) → one inline <style>. */}}
+{{- with slice (resources.Get "css/fonts.css") (resources.Get "css/main.css") | resources.Concat "css/site.css" | minify }}
 <style>{{ .Content | safeCSS }}</style>
 {{- end }}
 

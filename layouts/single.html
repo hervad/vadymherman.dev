@@ -1,6 +1,9 @@
 {{ define "main" }}
 <article>
   <header>
+    {{- if eq .Section "blog" }}
+    {{- with .Parent }}<p class="label"><a href="{{ .RelPermalink }}">{{ .Title }}</a></p>{{ end }}
+    {{- end }}
     <h1>{{ .Title }}</h1>
     {{- if eq .Section "blog" }}
     {{- partial "post-meta.html" . }}

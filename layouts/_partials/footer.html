@@ -1,9 +1,10 @@
 <footer class="site-footer">
-  <p>
+  <p class="footer-links">
     <a href="{{ site.Params.github }}">GitHub</a>
     <a href="{{ site.Params.linkedin }}">LinkedIn</a>
     {{- with site.Home.OutputFormats.Get "rss" }}
     <a href="{{ .RelPermalink }}">RSS</a>
     {{- end }}
   </p>
+  <p class="footer-meta"><span>© {{ now.Year }} {{ site.Params.author }}</span><span>{{ i18n "builtWith" }}</span></p>
 </footer>

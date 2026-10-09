@@ -1,0 +1,13 @@
+{{- /* Build strip (design spec): only facts that are true when the page is built.
+       buildsha is set by CI (HUGO_PARAMS_BUILDSHA); without it this is a local build.
+       "checks passed" is honest because CI deploys a build only after make check succeeds. */}}
+{{- $sha := site.Params.buildsha }}
+<div class="strip" role="group" aria-label="{{ i18n "stripLabel" }}">
+  <div class="wrap strip-in">
+    <span><b>{{ i18n "stripBuild" }}</b>{{ with $sha }}{{ substr . 0 7 }}{{ else }}dev{{ end }}</span>
+    <span><b>{{ i18n "stripOrigin" }}</b>{{ site.Params.origin }}</span>
+    <span><b>hugo</b>{{ hugo.Version }}</span>
+    <span><b>{{ i18n "stripProto" }}</b>{{ site.Params.proto }}</span>
+    <span class="strip-ok"><i aria-hidden="true"></i>{{ if $sha }}{{ i18n "stripChecks" }}{{ else }}{{ i18n "stripLocal" }}{{ end }}</span>
+  </div>
+</div>

@@ -33,7 +33,7 @@ what you learn, and how we know it's done. Steps marked **(you)** are things onl
   order, `.Pages` vs `site.RegularPages`. Small exercise: add reading time to posts.
   - Done when: Claude made the change and you can explain how it works (what each line does and
     why).
-- [ ] **1.2 Design.** Follow docs/design-brief.md: Claude proposes a design plan (palette, type
+- [x] **1.2 Design.** Follow docs/design-brief.md: Claude proposes a design plan (palette, type
   scale, layout wireframe), you pick, then it's implemented in main.css. Add a no-flash dark/light
   toggle and a /styleguide/ page (draft, not in nav) showing every element in both themes.
   - Done when: Lighthouse accessibility 100, both themes checked, CSS < 14 KB.
@@ -60,6 +60,9 @@ what you learn, and how we know it's done. Steps marked **(you)** are things onl
     vadymherman.com + www together with the redirect; CAA matching the issuer set in the
     Caddyfile; consider `timezone: UTC` (the server is in Canada, Warsaw time is misleading in logs).
 - [ ] **1.4 Deploy pipeline.** Deploy job in GitHub Actions: build → precompress (brotli, gzip) →
+  - Carried over from 1.2: long cache headers for `/fonts/` (Lighthouse flagged "Cache TTL: None"
+    on the local test server). Font URLs are not fingerprinted, so a font update must change the
+    URL (e.g. `/fonts/v2/`) or browsers keep the old file for the whole cache lifetime.
   rsync to releases/<sha>/ → atomic symlink switch → smoke test (build SHA meta tag) → keep last 5
   releases. Separate manual "rollback" workflow. Restricted deploy key (rrsync), pinned host key.
   - Learn: atomic renames, why symlink switching avoids half-deployed sites, least privilege.
@@ -83,8 +86,12 @@ what you learn, and how we know it's done. Steps marked **(you)** are things onl
 
 ## Phase 2: Features
 
-- [ ] **2.1 Polish version.** Enable `pl` in hugo.toml, hreflang + x-default, language switcher that
-  never 404s, untranslated-post handling, PL RSS. Translate Home + About yourself.
+- [ ] **2.1 Ukrainian and Polish versions.** Enable `uk` and `pl` in hugo.toml (English stays the
+  default, ADR 0010), hreflang + x-default, language switcher that never 404s, untranslated-post
+  handling, RSS per language. Claude translates Home + About, you review.
+  - Before enabling `uk`: add the Cyrillic font subsets (cyrillic + cyrillic-ext) to
+    fetch-fonts.sh and fonts.css, measured and pinned like ADR 0009; until then Cyrillic text
+    falls back to the system font (seen in a test build on 2026-10-10).
 - [ ] **2.2 GitHub projects data.** scripts/fetch_github.py (build-time, GITHUB_TOKEN, fail-soft)
   → data/github/repos.json; data/projects.yaml for curated EN/PL blurbs; daily scheduled build.
 - [ ] **2.3 Images.** Markdown image render hook: AVIF/WebP/JPEG `<picture>`, srcset, width/height,

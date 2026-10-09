@@ -1,0 +1,35 @@
+{{- /* /styleguide/ (draft): the components Markdown can't express, then the page's Markdown prose.
+       All demo text comes from front matter, so the template holds no UI strings. */}}
+{{ define "main" }}
+<article>
+  <header>
+    {{- with .Params.eyebrow }}<p class="label">{{ . }}</p>{{ end }}
+    <h1>{{ .Title }}</h1>
+    <p class="meta">{{ .Description }}</p>
+  </header>
+
+  {{- with .Params.demo }}
+  <section class="block">
+    <h2 class="label section-h"><span>{{ .projectsTitle }}</span><span>{{ len .projects }}</span></h2>
+    <ul class="rows">
+      {{- range .projects }}
+      <li><a href="#"><span class="row-title">{{ .title }}</span><span class="row-meta">{{ .status }}</span><span class="row-desc">{{ .desc }}</span></a></li>
+      {{- end }}
+    </ul>
+  </section>
+  <section class="block">
+    <h2 class="label section-h"><span>{{ .postsTitle }}</span><span>{{ len .posts }}</span></h2>
+    <ul class="rows rows-posts">
+      {{- range .posts }}
+      <li><a href="#"><time datetime="{{ .date }}">{{ .date }}</time><span class="row-title">{{ .title }}</span></a></li>
+      {{- end }}
+    </ul>
+  </section>
+  <section class="block">
+    <h2 class="label section-h"><span>{{ .proseTitle }}</span><span></span></h2>
+  </section>
+  {{- end }}
+
+  {{ .Content }}
+</article>
+{{ end }}

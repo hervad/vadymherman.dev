@@ -1,13 +1,34 @@
 {{ define "main" }}
-<section class="intro">
-  {{ .Content }}
+<section class="hero">
+  {{- with .Params.eyebrow }}<p class="label">{{ . }}</p>{{ end }}
+  {{- /* The name as a two-line headline: one line per word. */}}
+  <h1 class="hero-title">{{ range split site.Params.author " " }}<span>{{ . }}</span> {{ end }}</h1>
+  <div class="lede">{{ .Content }}</div>
 </section>
 
-<section aria-labelledby="latest">
-  <h2 id="latest">{{ i18n "latestPosts" }}</h2>
-  {{- $posts := where site.RegularPages "Section" "blog" }}
+{{- /* Projects: shown once the section has entries (step 1.5 / 2.2). */}}
+{{- with site.GetPage "/projects" }}
+{{- $projects := . }}
+{{- with .Pages }}
+<section class="block" aria-labelledby="projects-h">
+  <h2 class="label section-h" id="projects-h"><span>{{ $projects.Title }}</span><span>{{ len . }}</span></h2>
+  <ul class="rows">
+    {{- range . }}
+    <li><a href="{{ .RelPermalink }}"><span class="row-title">{{ .LinkTitle }}</span>{{ with .Params.status }}<span class="row-meta">{{ . }}</span>{{ end }}{{ with .Description }}<span class="row-desc">{{ . }}</span>{{ end }}</a></li>
+    {{- end }}
+  </ul>
+</section>
+{{- end }}
+{{- end }}
+
+{{- /* Writing: a language without a blog section (e.g. before step 2.1) just says so. */}}
+{{- $posts := where site.RegularPages "Section" "blog" }}
+<section class="block"{{ with site.GetPage "/blog" }} aria-labelledby="writing-h"{{ end }}>
+  {{- with site.GetPage "/blog" }}
+  <h2 class="label section-h" id="writing-h"><span>{{ .Title }}</span><span>{{ len $posts }}</span></h2>
+  {{- end }}
   {{- with first 5 $posts }}
-  <ul class="post-list">
+  <ul class="rows rows-posts">
     {{- range . }}
     {{ partial "post-item.html" . }}
     {{- end }}

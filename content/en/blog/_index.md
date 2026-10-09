@@ -1,5 +1,5 @@
 ---
-title: "Blog"
+title: "Writing"
 description: "Notes from work and projects."
-weight: 2
+weight: 1
 ---

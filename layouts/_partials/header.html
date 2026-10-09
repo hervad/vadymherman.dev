@@ -1,5 +1,6 @@
 <header class="site-header">
-  <a class="site-title" href="{{ site.Home.RelPermalink }}">{{ site.Title }}</a>
+  {{- /* The mark reads "VH/dev" visually; screen readers get the site name instead. */}}
+  <a class="mark" href="{{ site.Home.RelPermalink }}" aria-label="{{ site.Title }}">VH<span>/</span>dev</a>
   <nav aria-label="{{ i18n "mainNav" }}">
     <ul>
       {{- range site.Sections.ByWeight }}
@@ -10,4 +11,10 @@
       {{- end }}
     </ul>
   </nav>
+  {{- /* Theme switch: all three words are in the HTML, CSS shows the current one (correct from the
+         first paint). Hidden without JavaScript, where the page simply follows the OS. */}}
+  <button class="theme" type="button">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><mask id="ecl"><rect x="-6" y="-6" width="36" height="36" fill="#fff"/><circle class="bite" cx="23" cy="3" r="7" fill="#000"/></mask><circle class="core" cx="12" cy="12" r="5.5" mask="url(#ecl)"/><path class="rays" d="M12 1.8v2.4M12 19.8v2.4M1.8 12h2.4M19.8 12h2.4M4.8 4.8l1.7 1.7M17.5 17.5l1.7 1.7M4.8 19.2l1.7-1.7M17.5 6.5l1.7-1.7"/></svg>
+    <span class="vh">{{ i18n "themeLabel" }}: </span><span class="tw-auto">{{ i18n "themeAuto" }}</span><span class="tw-light">{{ i18n "themeLight" }}</span><span class="tw-dark">{{ i18n "themeDark" }}</span>
+  </button>
 </header>

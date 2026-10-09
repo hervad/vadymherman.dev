@@ -16,12 +16,19 @@ enableGitInfo = true    # .Lastmod comes from the last commit touching each file
     locale = "en-US"
     contentDir = "content/en"
     weight = 1
+  # Language code is "uk" (ISO 639-1 for Ukrainian); "ua" is the country code. ADR 0010.
+  [languages.uk]
+    label = "Українська"
+    locale = "uk-UA"
+    contentDir = "content/uk"
+    weight = 2
+    # Ukrainian and Polish are switched off until step 2.1. Flip to false then.
+    disabled = true
   [languages.pl]
     label = "Polski"
     locale = "pl-PL"
     contentDir = "content/pl"
-    weight = 2
-    # Polish is switched off until step 2.1 (bilingual). Flip to false then.
+    weight = 3
     disabled = true
 
 [taxonomies]
@@ -46,6 +53,9 @@ enableGitInfo = true    # .Lastmod comes from the last commit touching each file
   github = "https://github.com/hervad"
   repo = "https://github.com/hervad/vadymherman.dev"
   linkedin = "https://www.linkedin.com/in/vadym-herman"
+  # Build strip (design spec): facts that are true at build time. buildsha comes from CI.
+  origin = "BHS"   # OVHcloud Beauharnois (ADR 0008)
+  proto = "h3"     # what Caddy serves (step 1.3)
 
 [sitemap]
   changeFreq = "weekly"

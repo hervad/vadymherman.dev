@@ -35,13 +35,13 @@ Work plan and progress: @docs/roadmap.md
   partials live in `layouts/_partials/`. `make check` fails on any deprecation warning, but some
   deprecations exist only in the docs and never warn (e.g. `site.Language.Lang`): on every Hugo
   upgrade, read the release notes for each version skipped and grep layouts/ for what they mention.
-- **No npm, no node_modules, no frameworks, no CDNs, no web fonts, no third-party scripts** without
-  asking first. Exceptions already approved for later steps: Pagefind (2.4), giscus (2.5),
+- **No npm, no node_modules, no frameworks, no CDNs, no new web fonts, no third-party scripts** without
+  asking first (the self-hosted fonts in ADR 0009 are approved). Exceptions already approved for later steps: Pagefind (2.4), giscus (2.5),
   GoatCounter (2.6), each loaded only on demand.
 - Page budget: ≤ 30 KB compressed HTML+CSS per page, 0 KB JavaScript on initial load except tiny
   inline snippets (theme init). CSS stays inlined while under ~14 KB.
-- Every user-facing string goes through `{{ i18n "key" }}` with the key added to **both**
-  i18n/en.toml and i18n/pl.toml.
+- Every user-facing string goes through `{{ i18n "key" }}` with the key added to **every**
+  i18n file: en.toml, uk.toml and pl.toml (English is the default; ADR 0010).
 - Content rules: @docs/content-guide.md. Don't write Kai's posts or About page for him; suggest
   structure and edit his drafts.
 - Infrastructure: Ansible must stay idempotent (2nd run = changed=0). SELinux stays enforcing; fix

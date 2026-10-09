@@ -2,7 +2,7 @@
 # so the "how do I build this?" answer never drifts.
 HUGO := ./.bin/hugo
 
-.PHONY: help tools tool-hashes serve build check clean i18n-check ansible-lint ansible-check
+.PHONY: help tools tool-hashes fonts serve build check clean i18n-check ansible-lint ansible-check
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
@@ -13,6 +13,9 @@ tools: ## Install pinned Hugo into ./.bin
 tool-hashes: ## Print SHA-256 lines for versions.env from the official release checksums
 	./scripts/tool-hashes.sh
 
+fonts: ## Re-download the self-hosted fonts into static/fonts (pinned SHA-256, ADR 0009)
+	./scripts/fetch-fonts.sh
+
 serve: ## Local preview with drafts at http://localhost:1313
 	$(HUGO) server --buildDrafts --navigateToChanged
 
@@ -22,6 +25,7 @@ build: ## Production build into ./public
 check: ## Strict build: any Hugo warning (deprecations, missing templates) fails
 	$(HUGO) --minify --gc --cleanDestinationDir --panicOnWarning
 	@python3 scripts/check-i18n.py
+	@./scripts/fetch-fonts.sh --verify
 	@echo "Page weights (bytes, uncompressed):"
 	@find public -name '*.html' -printf '%s\t%p\n' | sort -rn | head -5
 

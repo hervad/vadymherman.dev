@@ -64,15 +64,17 @@ Self-hosted (no CDN), split by `unicode-range` so English pages never download P
 
 ## Layout
 
-- **Build strip** (top): `BUILD <sha> · ORIGIN BHS · PAGE <size> · PROTO h3` and a green
-  "nominal" dot. Values come from the real build (Hugo + CI).
+- **Build strip** (top): `BUILD <sha> · ORIGIN BHS · HUGO <version> · PROTO h3` and a green dot
+  with "checks passed" (CI builds) or "local build". Only facts true at build time (decided
+  2026-10-09); a real `PAGE <size>` can return with the compressed-size checks in step 2.7.
 - **Nav:** `VH/dev` mark left (slash in the accent), menu right, theme switch at the end.
 - **Home:** eyebrow `LINUX · KVM · PLATFORM RELIABILITY`, two-line name headline, one-sentence
   intro, then Projects (title, one-line description, status) and Writing (date column + title).
 - **Post:** eyebrow link back to Writing, headline, mono meta line (date · updated · tested on;
   each item only when it applies, tags in the post footer),
   prose, code blocks with a title bar (file name left, line range or language right).
-- Footer: copyright left, `0 KB JavaScript · served by Caddy` right.
+- Footer: links, then copyright left and `Built with Hugo · served by Caddy` right ("0 KB
+  JavaScript" became untrue once the theme script existed).
 
 ## Interaction
 
@@ -81,12 +83,14 @@ Self-hosted (no CDN), split by `unicode-range` so English pages never download P
 | Links | **Sweep**: a 1.5 px accent underline grows from the left, 0.25 s |
 | List rows | **Spotlight**: hovering or tabbing to a row dims the others to 32% (`:has()`, only on devices that hover; keyboard via `:focus-visible`). Readout flip: **off** |
 | Page load | **Boot**: build-strip values type in one after another, then the status dot lights (about 1 s, once) |
-| Theme switch | **Eclipse + label**: pill with the eclipse icon and the current theme word (LIGHT / DARK). Circular reveal from the switch via View Transitions; instant where unsupported |
+| Theme switch | **Eclipse + label**: pill with the eclipse icon and the current setting (AUTO / LIGHT / DARK), clicks cycle AUTO → LIGHT → DARK. Circular reveal from the switch via View Transitions, only when the colours actually change; instant where unsupported |
 
 - All motion is off under `prefers-reduced-motion: reduce`.
-- Theme switch is a real `<button>` with a fixed name ("Dark theme") and `aria-pressed`,
-  visible focus ring, at least 24×24 px.
-- Default theme follows the OS (`prefers-color-scheme`); a click overrides it and is remembered.
+- Theme switch is a real `<button>` whose name says the current setting ("Theme: Auto"); not
+  `aria-pressed`, which only fits two states. Visible focus ring, at least 24×24 px; hidden when
+  JavaScript is off (the page then follows the OS).
+- Default (AUTO) follows the OS (`prefers-color-scheme`); LIGHT/DARK are remembered in
+  localStorage and applied by an inline script in `<head>` before the first paint (no flash).
 
 ## Budgets
 
@@ -104,9 +108,3 @@ Self-hosted (no CDN), split by `unicode-range` so English pages never download P
 - Readout flip on rows; amber title/text on selected rows (only applied to the "Select" row style,
   which was replaced by Spotlight).
 - Highlighter light mode (yellow as a marker behind black text): the runner-up for light mode.
-
-## Open questions for step 1.2
-
-- Getting back to "follow my OS" after clicking the switch: a third state, or a small "auto"
-  link? Proposed: the label shows `AUTO` until the first click; decide during the build.
-- Whether the build strip's `PAGE <size>` can be computed at build time in Hugo or needs a CI step.
