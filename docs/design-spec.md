@@ -69,7 +69,8 @@ Self-hosted (no CDN), split by `unicode-range` so English pages never download P
 - **Nav:** `VH/dev` mark left (slash in the accent), menu right, theme switch at the end.
 - **Home:** eyebrow `LINUX · KVM · PLATFORM RELIABILITY`, two-line name headline, one-sentence
   intro, then Projects (title, one-line description, status) and Writing (date column + title).
-- **Post:** eyebrow link back to Writing, headline, mono meta line (date · reading time · tags),
+- **Post:** eyebrow link back to Writing, headline, mono meta line (date · updated · tested on;
+  each item only when it applies, tags in the post footer),
   prose, code blocks with a title bar (file name left, line range or language right).
 - Footer: copyright left, `0 KB JavaScript · served by Caddy` right.
 
@@ -96,6 +97,9 @@ Self-hosted (no CDN), split by `unicode-range` so English pages never download P
 
 ## Dropped (easy to bring back)
 
+- Reading time (decided 2026-10-09, step 1.1): evidence for it is marketing anecdotes, people
+  scan rather than read, and code blocks inflate it; none of the exemplar sites show it. The
+  slot shows "updated" (from git) and "tested on" instead.
 - Workbench direction (light, editorial, hand-drawn).
 - Readout flip on rows; amber title/text on selected rows (only applied to the "Select" row style,
   which was replaced by Spotlight).

@@ -61,7 +61,8 @@ pre { background: var(--code-bg); padding: 1rem; overflow-x: auto; border-radius
 
 .post-list { list-style: none; padding: 0; }
 .post-list li { display: flex; justify-content: space-between; gap: 1rem; padding: 0.4rem 0; border-bottom: 1px solid var(--border); }
-.post-list time, .meta { color: var(--muted); font-size: 0.9em; white-space: nowrap; }
+.post-list time, .meta { color: var(--muted); font-size: 0.9em; }
+.post-list time { white-space: nowrap; }
 
 .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; list-style: none; padding: 0; }
 

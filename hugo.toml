@@ -8,7 +8,7 @@ defaultContentLanguage = "en"
 defaultContentLanguageInSubdir = true
 
 enableRobotsTXT = true
-enableGitInfo = false   # flip to true later for automatic "last updated" dates
+enableGitInfo = true    # .Lastmod comes from the last commit touching each file (CI needs full history)
 
 [languages]
   [languages.en]
@@ -44,6 +44,7 @@ enableGitInfo = false   # flip to true later for automatic "last updated" dates
   description = "Systems engineer working on Linux, KVM and platform reliability. Notes from the job and the projects around it."
   author = "Vadym Herman"
   github = "https://github.com/hervad"
+  repo = "https://github.com/hervad/vadymherman.dev"
   linkedin = "https://www.linkedin.com/in/vadym-herman"
 
 [sitemap]

@@ -1,0 +1,19 @@
+{{- /* Post meta line, used by single.html for blog posts. Each item shows only when its data exists:
+       published date (always) · "updated" (from git, only if the file changed on a later day, linked
+       to its history on GitHub; a post can hide it with `showUpdated: false`) · "tested on"
+       (only if the post has a `tested:` list). */}}
+{{- $published := .Date.Format "2006-01-02" }}
+{{- $updated := .Lastmod.Format "2006-01-02" }}
+<p class="meta">
+  <time datetime="{{ $published }}">{{ .Date | time.Format ":date_long" }}</time>
+  {{- /* ISO dates compare correctly as strings: "2026-10-08" > "2026-10-07". */}}
+  {{- /* `ne … false`: a missing field means "show"; only an explicit false hides it. */}}
+  {{- if and (gt $updated $published) (ne .Params.showUpdated false) }}
+  · {{ i18n "updated" }}
+  {{- /* content/<lang>/ is the contentDir convention in hugo.toml; .File.Path is relative to it. */}}
+  <a href="{{ site.Params.repo }}/commits/main/{{ path.Join "content" site.Language.Name .File.Path }}"><time datetime="{{ $updated }}">{{ .Lastmod | time.Format ":date_long" }}</time></a>
+  {{- end }}
+  {{- with .Params.tested }}
+  · {{ i18n "testedOn" }} {{ delimit . ", " }}
+  {{- end }}
+</p>

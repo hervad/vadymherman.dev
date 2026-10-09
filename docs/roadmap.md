@@ -29,7 +29,7 @@ what you learn, and how we know it's done. Steps marked **(you)** are things onl
 
 ## Phase 1: MVP (target: one weekend per 2–3 steps)
 
-- [ ] **1.1 How the templates work.** Guided tour of layouts/: baseof + blocks, partials, lookup
+- [x] **1.1 How the templates work.** Guided tour of layouts/: baseof + blocks, partials, lookup
   order, `.Pages` vs `site.RegularPages`. Small exercise: add reading time to posts.
   - Done when: Claude made the change and you can explain how it works (what each line does and
     why).

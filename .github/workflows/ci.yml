@@ -25,6 +25,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false   # the build never pushes, so don't leave a token in .git/config
+          fetch-depth: 0               # full history: Hugo's git dates ("Updated") need every commit, not just the last
 
       # $GITHUB_ENV accepts only NAME=value lines; a "# comment" line fails the job.
       - name: Load pinned tool versions
