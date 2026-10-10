@@ -8,7 +8,7 @@ site_root: /srv/site                    # releases/<sha>/ live here, current is 
 admin_user: kai                         # you (same name as on the laptop); sudo, SSH key only
 deploy_user: deploy                     # CI; no sudo, can only write to site_root/releases
 
-timezone: Europe/Warsaw
+timezone: UTC                           # server logs line up with CI, Let's Encrypt, most tools; no DST jumps
 
 # SSH connection: the key made in step 0.3 (a path, not a secret), and only that key
 # (IdentitiesOnly), so SSH doesn't offer every key in ~/.ssh to the server.

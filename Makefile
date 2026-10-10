@@ -42,4 +42,4 @@ ansible-lint: ## Lint the Ansible code
 	cd infra/ansible && ansible-lint
 
 ansible-check: ## Dry-run the playbook against the server (shows the diff, changes nothing)
-	cd infra/ansible && ansible-playbook playbooks/site.yml --check --diff
+	cd infra/ansible && ansible-playbook -i inventory/production.yml playbooks/site.yml --check --diff

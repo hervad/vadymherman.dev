@@ -19,6 +19,9 @@ Work plan and progress: @docs/roadmap.md
   If something you said earlier was wrong, say so explicitly and correct it.
 - **After each step**, add the concepts you explained to docs/learning-log.md (1–3 lines each). These
   become blog post material later.
+- **Learning loop** (global CLAUDE.md): map → worked example → Kai predicts → run and compare →
+  explain back → recall next session → fade the help. The project's big map and its one analogy
+  (the site as a restaurant) live in docs/field-guide.html; keep it current when parts change.
 
 ## Commands
 
