@@ -1,2 +1,7 @@
-# Default variables for the users_ssh role (lowest precedence; override in group_vars).
-{}
+# Default variables for the users_ssh role (lowest precedence; override in inventory/group_vars).
+
+users_ssh_admin: "{{ admin_user }}"            # kai: logs in with his key, sudo asks for a password
+users_ssh_admin_comment: "Vadym Herman"
+users_ssh_deploy: "{{ deploy_user }}"          # deploy: CI's account, no sudo; key arrives in step 1.4
+users_ssh_bootstrap_user: almalinux            # the image's default user; Ansible's first login
+users_ssh_bootstrap_sudoers: /etc/sudoers.d/90-cloud-init-users   # its passwordless sudo, from cloud-init

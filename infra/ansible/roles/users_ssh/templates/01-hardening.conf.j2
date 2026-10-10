@@ -1,0 +1,9 @@
+# {{ ansible_managed }}
+# Read first: 01- sorts before 50-cloud-init.conf, and sshd keeps the first value it sees.
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PermitRootLogin no
+# Only these users may log in over SSH. While Ansible still connects as {{ users_ssh_bootstrap_user }}
+# (the very first run), it stays allowed; the first run as {{ users_ssh_admin }} removes it.
+AllowUsers {{ users_ssh_admin }} {{ users_ssh_deploy }}{% if ansible_user == users_ssh_bootstrap_user %} {{ users_ssh_bootstrap_user }}{% endif %}
+

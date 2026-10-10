@@ -71,13 +71,19 @@ what you learn, and how we know it's done. Steps marked **(you)** are things onl
     (incl. policycoreutils-python-utils), dnf-automatic: security only, applied daily,
     `reboot = when-needed`. Dry run clean, real run, second run `changed=0`, verified on the VM.
     Decided: lab is the default inventory (production needs `-i`), timezone UTC.
-    Next: piece 2 = `users_ssh` (kai + deploy users, sshd drop-in, lock almalinux).
+  - Piece 2 done on the lab (2026-10-10): `users_ssh` creates kai (wheel, sudo password from
+    ansible-vault `inventory/group_vars/all/secrets.vault.yml`, key from `files/kai.pub`) and
+    deploy (no sudo, key in 1.4); `01-hardening.conf`: no passwords, no root, AllowUsers kai
+    deploy; two-phase bootstrap (run 1 as almalinux keeps it allowed, run 2 as kai removes its
+    SSH access and NOPASSWD sudo). Verified: almalinux and password logins refused, kai works,
+    run 3 `changed=0`. Vault password in `infra/ansible/.vault_pass` (600, gitignored) + KeePassXC.
+    Next: piece 3 = `firewall` (firewalld: ssh, http, https, http3/UDP 443).
   - Open issues: lab IP comes from DHCP (may change after a reset); lab reset is documented,
     not scripted; the VPS gets `base` only in piece 6.
 - [ ] **1.4 Deploy pipeline.** Deploy job in GitHub Actions: build → precompress (brotli, gzip) →
-  releases. Separate manual "rollback" workflow. Restricted deploy key (rrsync), pinned host key.
   rsync to releases/<sha>/ → atomic symlink switch → smoke test (build SHA meta tag) → keep last 5
   - Learn: atomic renames, why symlink switching avoids half-deployed sites, least privilege.
+  releases. Separate manual "rollback" workflow. Restricted deploy key (rrsync), pinned host key.
   - Done when: a push to main is live in < 2 min, and a rollback is tested once.
   - Research fixes: forced-command wrapper for `activate <sha>` (rrsync can't flip symlinks;
     `mv -Tf` a temp link); reconcile deploy permissions with inventory/group_vars/all/vars.yml (deploy_user);

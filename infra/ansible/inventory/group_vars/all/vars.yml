@@ -14,3 +14,7 @@ timezone: UTC                           # server logs line up with CI, Let's Enc
 # (IdentitiesOnly), so SSH doesn't offer every key in ~/.ssh to the server.
 ansible_ssh_private_key_file: ~/.ssh/vadymherman_vps
 ansible_ssh_common_args: "-o IdentitiesOnly=yes"
+
+# sudo password Ansible uses when connected as kai (from secrets.vault.yml; ignored while the
+# bootstrap user, which has passwordless sudo, is used).
+ansible_become_password: "{{ vault_kai_password }}"

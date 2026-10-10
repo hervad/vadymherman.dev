@@ -1,6 +1,63 @@
-# Role: users_ssh (roadmap step 1.3)
-# Purpose: Admin user (sudo) and deploy user (no sudo, restricted to site_root/releases), SSH key-only, no root login, AllowUsers.
-# Status: SKELETON. Claude implements this with you in step 1.3; see docs/roadmap.md.
-- name: "users_ssh | not implemented yet"
-  ansible.builtin.debug:
-    msg: "Role users_ssh is a skeleton. Implement it in roadmap step 1.3."
+# Role: users_ssh (roadmap step 1.3, piece 2)
+# Who may log in, and how. Two-phase bootstrap so we can't lock ourselves out:
+#   run 1 as almalinux: create kai, harden sshd, almalinux still allowed
+#   run 2 as kai:       remove almalinux's SSH access and passwordless sudo
+#   run 3 as kai:       changed=0
+
+- name: "users_ssh | Create the admin user"
+  # wheel = may use sudo (AlmaLinux's sudoers asks wheel members for their password).
+  # The password comes from the vault; only its hash is stored on the server.
+  ansible.builtin.user:
+    name: "{{ users_ssh_admin }}"
+    comment: "{{ users_ssh_admin_comment }}"
+    groups: wheel
+    append: true
+    shell: /bin/bash
+    password: "{{ vault_kai_password | password_hash('sha512', vault_kai_password_salt) }}"
+  no_log: true   # keep the password hash out of the output and logs
+  register: users_ssh_admin_result     # remembered so the key task knows if kai is brand new
+
+- name: "users_ssh | Allow exactly one SSH key for the admin user"
+  # exclusive: any other key in authorized_keys is removed, so this file is the whole truth.
+  ansible.posix.authorized_key:
+    user: "{{ users_ssh_admin }}"
+    key: "{{ lookup('ansible.builtin.file', 'kai.pub') }}"
+    exclusive: true
+  # Dry run on a fresh server: kai was only "pretend-created", so there's no user to give a key to.
+  when: not (ansible_check_mode and users_ssh_admin_result is changed)
+
+- name: "users_ssh | Create the deploy user"
+  # No sudo, no password, no key yet: nobody can log in as deploy until step 1.4 adds CI's key.
+  ansible.builtin.user:
+    name: "{{ users_ssh_deploy }}"
+    comment: "CI deploys (step 1.4)"
+    shell: /bin/bash
+
+- name: "users_ssh | Harden sshd"
+  # validate: sshd checks the new file's syntax before it replaces the old one.
+  ansible.builtin.template:
+    src: 01-hardening.conf.j2
+    dest: /etc/ssh/sshd_config.d/01-hardening.conf
+    owner: root
+    group: root
+    mode: "0600"
+    validate: /usr/sbin/sshd -t -f %s
+  notify: Reload sshd
+
+- name: "users_ssh | Remove the hand-made file from step 0.3"
+  # 01-hardening.conf replaces the VPS's manual 01-no-passwords.conf (absent in the lab: ok).
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config.d/01-no-passwords.conf
+    state: absent
+  notify: Reload sshd
+
+- name: "users_ssh | Apply the sshd changes now"
+  # Run pending handlers here, while the bootstrap user still has sudo (instead of at the end).
+  ansible.builtin.meta: flush_handlers
+
+- name: "users_ssh | Remove the bootstrap user's passwordless sudo"
+  # Only once we connect as the admin user (phase 2): until then this sudo is what Ansible uses.
+  ansible.builtin.file:
+    path: "{{ users_ssh_bootstrap_sudoers }}"
+    state: absent
+  when: ansible_user != users_ssh_bootstrap_user
