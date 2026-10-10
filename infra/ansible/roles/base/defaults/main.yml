@@ -1,2 +1,19 @@
-# Default variables for the base role (lowest precedence; override in group_vars).
-{}
+# Default variables for the base role (lowest precedence; override in inventory/group_vars).
+
+# The server's own name (shell prompt, logs). Visitors never see it; they find the server via DNS.
+base_hostname: "{{ inventory_hostname }}"   # vh-lab in the lab, web1 in production
+
+base_timezone: "{{ timezone }}"              # UTC, set in inventory/group_vars/all/vars.yml
+
+base_packages:
+  - chrony                        # keeps the clock right (TLS certificates and logs depend on it)
+  - dnf-automatic                 # installs security updates on a timer
+  - policycoreutils-python-utils  # provides semanage, needed by the selinux role and for Caddy's labels
+
+# dnf-automatic: apply security fixes only. Feature updates stay manual so nothing changes unexpectedly.
+base_auto_update_type: security
+
+# Reboot only when an installed update needs it (kernel, glibc, systemd), 5 minutes after the run
+# (~06:10 UTC). Costs ~30-60 s of downtime a few times a month; without it a patched kernel
+# would sit unused until someone reboots by hand. Decided 2026-10-10.
+base_auto_reboot: when-needed

@@ -1,6 +1,51 @@
-# Role: base (roadmap step 1.3)
-# Purpose: Hostname, timezone/chrony, base packages, dnf-automatic applying security updates only.
-# Status: SKELETON. Claude implements this with you in step 1.3; see docs/roadmap.md.
-- name: "base | not implemented yet"
-  ansible.builtin.debug:
-    msg: "Role base is a skeleton. Implement it in roadmap step 1.3."
+# Role: base (roadmap step 1.3, piece 1)
+# The building itself: the server's name, its clock, and automatic security updates.
+# Every task describes an end state; on a second run each one reports "ok" (changed=0).
+
+- name: "base | Set the hostname"
+  # Compares the current name with base_hostname and changes it only if they differ.
+  ansible.builtin.hostname:
+    name: "{{ base_hostname }}"
+    use: systemd                  # the hostnamectl way on AlmaLinux 10
+
+- name: "base | Set the timezone"
+  # UTC keeps log times free of daylight-saving jumps and in line with CI and Let's Encrypt.
+  community.general.timezone:
+    name: "{{ base_timezone }}"
+
+- name: "base | Install base packages"
+  # state: present installs what's missing and leaves installed packages alone (no surprise upgrades).
+  ansible.builtin.dnf:
+    name: "{{ base_packages }}"
+    state: present
+  register: base_packages_result      # remembered so the timer task knows if this was a fresh install
+
+- name: "base | Keep time sync running"
+  # chronyd talks to public NTP servers; enabled = starts at boot, started = running now.
+  ansible.builtin.systemd_service:
+    name: chronyd
+    enabled: true
+    state: started
+
+- name: "base | Configure automatic updates (security only, applied)"
+  # Edits three lines in /etc/dnf/automatic.conf; the rest of the file stays as AlmaLinux ships it.
+  community.general.ini_file:
+    path: /etc/dnf/automatic.conf
+    section: commands
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: "0644"
+  loop:
+    - { option: upgrade_type, value: "{{ base_auto_update_type }}" }   # only security advisories
+    - { option: apply_updates, value: "yes" }                          # install them, not just download
+    - { option: reboot, value: "{{ base_auto_reboot }}" }              # reboot only if an update requires it
+
+- name: "base | Run automatic updates daily"
+  # The systemd timer (like cron) runs dnf-automatic once a day with the settings above.
+  ansible.builtin.systemd_service:
+    name: dnf-automatic.timer
+    enabled: true
+    state: started
+  # In a dry run (--check) nothing is really installed, so on a fresh server the timer doesn't
+  # exist yet. Skip only that case; on an already-configured server the dry run still checks it.
+  when: not (ansible_check_mode and base_packages_result is changed)

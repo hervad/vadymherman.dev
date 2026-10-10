@@ -62,18 +62,21 @@ what you learn, and how we know it's done. Steps marked **(you)** are things onl
   - Carried over from 1.2: long cache headers for `/fonts/` (Lighthouse flagged "Cache TTL: None"
     on the local test server). Font URLs are not fingerprinted, so a font update must change the
     URL (e.g. `/fonts/v2/`) or browsers keep the old file for the whole cache lifetime.
-  rsync to releases/<sha>/ → atomic symlink switch → smoke test (build SHA meta tag) → keep last 5
   - Progress (2026-10-10, stopped after piece 0 of 6): tools + lab VM done. ansible-core 2.20.7;
     collections pinned (ansible.posix 2.2.2, community.general 13.5.0, `make ansible-deps`);
     lab VM `vh-lab` on the desktop from the signature-verified AlmaLinux 10.2 cloud image
     (docs/runbooks/lab-vm.md); `inventory/local.yml`; Ansible ping → pong. Fixed: group_vars
     moved to `inventory/group_vars/all/` (playbooks never loaded it). Admin user is `kai`.
-    Next: piece 1 = `base` role (hostname, timezone, chrony, packages, dnf-automatic security).
-  - Open issues: `ansible.cfg` defaults to the *production* inventory, so a forgotten `-i` hits
-    the VPS (decide: default to local.yml?); timezone Warsaw vs UTC; lab IP comes from DHCP
-    (may change after a reset); lab reset is documented, not scripted.
+  - Piece 1 done on the lab (2026-10-10): `base` role sets hostname, UTC, chrony, packages
+    (incl. policycoreutils-python-utils), dnf-automatic: security only, applied daily,
+    `reboot = when-needed`. Dry run clean, real run, second run `changed=0`, verified on the VM.
+    Decided: lab is the default inventory (production needs `-i`), timezone UTC.
+    Next: piece 2 = `users_ssh` (kai + deploy users, sshd drop-in, lock almalinux).
+  - Open issues: lab IP comes from DHCP (may change after a reset); lab reset is documented,
+    not scripted; the VPS gets `base` only in piece 6.
 - [ ] **1.4 Deploy pipeline.** Deploy job in GitHub Actions: build → precompress (brotli, gzip) →
   releases. Separate manual "rollback" workflow. Restricted deploy key (rrsync), pinned host key.
+  rsync to releases/<sha>/ → atomic symlink switch → smoke test (build SHA meta tag) → keep last 5
   - Learn: atomic renames, why symlink switching avoids half-deployed sites, least privilege.
   - Done when: a push to main is live in < 2 min, and a rollback is tested once.
   - Research fixes: forced-command wrapper for `activate <sha>` (rrsync can't flip symlinks;
