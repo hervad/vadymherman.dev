@@ -81,12 +81,16 @@ review and approve before publishing.
     Next: piece 3 = `firewall` (firewalld: ssh, http, https, http3/UDP 443).
   - Open issues: lab IP comes from DHCP (may change after a reset); lab reset is documented,
     not scripted; the VPS gets `base` only in piece 6.
-  - Refresh 2026-11-27: `ansible.cfg` now sets `inject_facts_as_vars = False`; the next lab dry
-    run must show `base` and `users_ssh` still pass. DNS has no DS, CAA or AAAA record
-    (`dig +short DS vadymherman.dev` is empty): enable DNSSEC in the Cloudflare dashboard **(you)**.
+  - Refresh 2026-11-27: `ansible.cfg` now sets `inject_facts_as_vars = False`; the lab dry run
+    the same day passed (`ok=16 changed=0 failed=0`). DNSSEC was enabled in Cloudflare on
+    2026-11-27 and the DS record is pending (up to two days; check `dig +short DS vadymherman.dev`).
+    Still no CAA or AAAA record.
     Check which Caddy the COPR gives EL10 (`dnf info caddy`; upstream is 2.11.9).
     community.general 14.0.1 is out (pinned: 13.5.0, a major jump): read its "Removed Features"
     and bump when the Caddy role (copr module) is written.
+  - Practices review 2026-11-27 (docs/research/2026-11-practices-review.md): in the caddy role,
+    use `caddy validate` as the template task's `validate:` (same pattern as `sshd -t`); at the
+    wrap-up, add a `verify.yml` with asserts and script the lab reset.
 - [ ] **1.4 Deploy pipeline.** Deploy job in GitHub Actions: build → precompress (brotli, gzip) →
   rsync to releases/<sha>/ → atomic symlink switch → smoke test (build SHA meta tag) → keep last 5
   releases. Separate manual "rollback" workflow. Restricted deploy key (rrsync), pinned host key.
@@ -97,8 +101,16 @@ review and approve before publishing.
     `rsync -c --link-dest`; protected `production` environment, `cancel-in-progress: false`.
   - Refresh 2026-11-27: rrsync is its own package, `rsync-rrsync` (`/usr/bin/rrsync` on
     Fedora 44); confirm on the lab with `rpm -ql rsync-rrsync` before writing the forced command.
+  - Practices review 2026-11-27, before the deploy job exists: a `make lint` target and CI job
+    (shellcheck, ansible-lint with the `production` profile, zizmor, and a guard that every
+    `*.vault.yml` starts with `$ANSIBLE_VAULT`), tools pinned as in ADR 0006. **(you)** push the
+    local commits; add a ruleset on `main` with required checks, turn on `sha_pinning_required`
+    and Dependabot alerts (cost: every change then goes through a pull request). gitleaks as a
+    local hook once the deploy key exists.
 - [ ] **1.5 Real content. (Claude writes, you review and approve)** Home intro, About, hand-written Projects page
   (3–5 projects: problem → approach → result), first real post. Delete hello-world.
+  - Practices review 2026-11-27: turn content-guide rules into checks (allowed tags, description
+    length, code blocks without a language) instead of relying on review.
 - [ ] **1.6 Security headers + SEO.** CSP (hashes for inline scripts), HSTS, Open Graph/Twitter
   meta, JSON-LD (Person, BlogPosting), sitemap check, robots.txt.
   - Done when: MDN HTTP Observatory A+, SSL Labs A+, Lighthouse 100 on all four categories.
@@ -138,6 +150,9 @@ review and approve before publishing.
     from a primary source.
 - [ ] **2.7 CI quality gates.** HTML validation, lychee link checks (internal on PRs, external
   weekly), Lighthouse CI with byte budgets. `make check` reports gzip/brotli sizes, not raw bytes.
+  - Practices review 2026-11-27: a `make outdated` target plus a weekly scheduled run (pinned
+    tools and collections against their latest releases); pin the HTML validator jar by hash.
+    Done early: `make check` now fails on a missing i18n key (`--printI18nWarnings`).
 
 ## Phase 3: SRE polish
 
@@ -149,6 +164,7 @@ review and approve before publishing.
 - [ ] **3.4 SLOs + runbooks.** docs/slo.md (99.9 %, p95 TTFB), runbooks: site down, cert failure,
   disk full, rollback.
 - [ ] **3.5 Hardening extras.** CrowdSec with the Caddy collection; Molecule tests; ansible-lint in CI.
+  - Practices review 2026-11-27: ansible-lint is proposed to move forward to before 1.4 (see there).
 - [ ] **3.6 Optional experiments.** OpenTofu for VPS + DNS; nginx vs Caddy benchmark post;
   CDN before/after measurement post (Bunny pull zone or Cloudflare proxy in front of Caddy;
   HTTPS DNS record with `alpn="h3,h2"`).

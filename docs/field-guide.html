@@ -381,10 +381,13 @@ footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--line
   <table>
     <thead><tr><th>Technique</th><th>What the research found</th><th>Strength</th><th>How we use it here</th></tr></thead>
     <tbody>
-      <tr><td>Practice testing</td><td>Recalling an answer from memory beats rereading it. Rated "high utility" in a review of 10 techniques.</td><td><span class="chip built">strong</span></td><td>Each session starts with 3 short questions on the last piece.</td></tr>
+      <tr><td>Practice testing</td><td>Recalling an answer from memory beats rereading it. Rated "high utility" in a review of 10 techniques.</td><td><span class="chip built">strong</span></td><td>Each session starts with 3 short questions from the recall queue; the answer follows each one, and a missed one comes back next time.</td></tr>
       <tr><td>Spaced practice</td><td>Coming back to a topic over days beats one long session. Also "high utility".</td><td><span class="chip built">strong</span></td><td>Old concepts come back in later quizzes; the learning log becomes flashcards.</td></tr>
       <tr><td>Worked examples, then fading</td><td>Beginners learn more from studying complete solutions than from solving alone; the benefit fades as skill grows, so help should shrink step by step.</td><td><span class="chip built">strong</span></td><td>I write the first roles with comments on every task; later you predict, then edit, then write one task yourself.</td></tr>
-      <tr><td>Predict + explain</td><td>Explaining why, while predicting what code will do, beats predicting alone or just watching. Meta-analysis effect around g = 0.55.</td><td><span class="chip next">medium</span></td><td>Before each dry run you say what you expect to change and why, in one sentence.</td></tr>
+      <tr><td>Predict + explain</td><td>Explaining why, while predicting what code will do, beats predicting alone or just watching. Meta-analysis effect around g = 0.55.</td><td><span class="chip next">medium</span></td><td>Before each dry run I explain the mechanism and offer 2–3 outcomes; you pick one. The "why" comes after the run.</td></tr>
+      <tr><td>Explain first, then ask</td><td>Beginners on material with many moving parts learn more from an explanation or worked example first. A question about something not yet shown is a blind guess, and blind guesses teach little.</td><td><span class="chip built">strong</span></td><td>I never open with a question on a new topic. Every question is about something you have just seen.</td></tr>
+      <tr><td>Watching is not learning</td><td>Students who only watched a demonstration did barely better later than students who never saw it. Those who first picked an outcome from a list did clearly better, although only 26% picked right.</td><td><span class="chip next">medium</span></td><td>You still commit to an answer before a run. Being wrong is expected about one time in five.</td></tr>
+      <tr><td>The answer always follows</td><td>When the right answer is given afterwards, a question teaches whether your first answer was right or wrong. A hard question with no answer after it teaches almost nothing.</td><td><span class="chip next">medium</span></td><td>After every question I give the answer and one sentence of reason. No question is left hanging.</td></tr>
       <tr><td>Words + meaningful diagrams</td><td>People learn more from words with relevant pictures than from words alone; decorative pictures don't help.</td><td><span class="chip next">medium</span></td><td>Every new mechanism gets one small diagram next to the text, like the ones on this page.</td></tr>
       <tr><td>Rereading, highlighting</td><td>Among the least effective techniques, though the most popular.</td><td><span class="chip later">weak</span></td><td>Don't reread my long messages; answer the recall questions instead.</td></tr>
     </tbody>
@@ -394,15 +397,16 @@ footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--line
 
   <h3>How we'll work through every piece from now on</h3>
   <ol class="loop">
-    <li><b>Place it on the map.</b><span>Which box or arrow above does this piece change? One sentence from you.</span></li>
+    <li><b>Place it on the map.</b><span>I say which box or arrow above this piece changes. Once a topic is familiar, you say it.</span></li>
     <li><b>Worked example.</b><span>I write the code with a short comment on every task: what it does and why.</span></li>
-    <li><b>Predict and explain.</b><span>Before the dry run, you say what will change and why. A wrong guess is fine; that's where learning happens.</span></li>
-    <li><b>Run and compare.</b><span>We read the <code>--check --diff</code> output against your prediction.</span></li>
-    <li><b>Explain it back.</b><span>Two sentences in your own words; I correct only the gaps.</span></li>
-    <li><b>Recall next session.</b><span>Three quick questions on the previous piece before we start the next.</span></li>
-    <li><b>Fade the help.</b><span>From the firewall role on, you write one small task yourself and I review it.</span></li>
+    <li><b>Show, then check.</b><span>After each explained piece, one short question about one thing you have just seen.</span></li>
+    <li><b>Predict by choosing.</b><span>Before the dry run I show the diff and the server's current state, explain the mechanism, and offer 2–3 outcomes. You pick one and say how sure you are.</span></li>
+    <li><b>Run and compare.</b><span>We read the <code>--check --diff</code> output against your pick, then one question on the difference.</span></li>
+    <li><b>Explain it back.</b><span>One or two sentences in your own words. At first I give you the frame: "X makes … so that …; without it …".</span></li>
+    <li><b>Recall next session.</b><span>Three questions from the recall queue before we start; the answer follows each.</span></li>
+    <li><b>Fade the help.</b><span>On familiar topics the question comes before the explanation; later you write one small task yourself and I review it.</span></li>
   </ol>
-  <pre class="term">$ ansible-playbook playbooks/site.yml --check --diff     # step 4: compare with your prediction
+  <pre class="term">$ ansible-playbook playbooks/site.yml --check --diff     # step 5: compare with your pick
 TASK [base : Set the hostname] ***************************
 --- before
 +++ after
@@ -410,6 +414,29 @@ TASK [base : Set the hostname] ***************************
 +vh-lab
 changed: [vh-lab]</pre>
   <p class="note">What a dry run will look like for the first task of the base role. The output in this example is illustrative; the real run comes next session.</p>
+
+  <h3>How a check question is built</h3>
+  <p>Changed on 2026-11-27, after the questions turned out too hard too often. Every question now comes after an explanation, asks about one idea, and can be answered from what is on screen. The forms go from easy to hard, and we climb only after success.</p>
+  <div class="table">
+  <table>
+    <thead><tr><th>Step</th><th>Form</th><th>Example</th><th>When</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Pick one of 2–3</td><td>The task has <code>notify: restart sshd</code>. Does sshd restart A) after that task on every run, B) once at the end and only if the task reported <code>changed</code>, C) at the end of every play?</td><td>Right after an explanation</td></tr>
+      <tr><td>2</td><td>Fill the gap</td><td>Our file is named <code>01-hardening.conf</code> because sshd reads drop-ins in … order and the … value wins.</td><td>Right after an explanation; recall</td></tr>
+      <tr><td>3</td><td>Trace or predict one thing</td><td><code>firewall-cmd --list-services</code> prints <code>ssh</code>; the diff adds <code>http</code> and <code>https</code>. What does it print after the run?</td><td>Before a run; recall</td></tr>
+      <tr><td>4</td><td>Explain one line</td><td>In one sentence, what is <code>AllowUsers kai deploy</code> for?</td><td>End of a step; recall</td></tr>
+      <tr><td>5</td><td>What if</td><td>The deploy dies after the copy but before the symlink switch. What does a visitor see?</td><td>Milestones</td></tr>
+      <tr><td>6</td><td>Teach back</td><td>A maintainer asks why we use releases plus a symlink instead of copying into the live folder. Answer from the map.</td><td>Milestones, on topics that passed steps 1–4</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <ul class="plain">
+    <li>Two misses in a row: the next question is one step easier. Three or four right on the first try: one step harder. About four of five right is the target.</li>
+    <li>Wrong answer: I say what is right in it, give one hint, you try once more, then I give the answer and you say it back in your words.</li>
+    <li>"I don't know" is a fine answer. I then offer options or point to where the answer is visible; if that fails, my explanation was too big and I explain a smaller piece.</li>
+    <li>"Makes sense" does not count as an answer, because feeling that you understood is the least reliable signal there is.</li>
+  </ul>
+  <p class="note">The six steps are a synthesis of several studies, not one tested method, and no study covers infrastructure code. Details, numbers and what was verified: <code>docs/research/2026-11-practices-review.md</code>. Questions waiting for the next sessions: <code>docs/recall-queue.md</code>.</p>
 
   <h3>For future projects</h3>
   <ul class="plain">
@@ -429,6 +456,7 @@ changed: [vh-lab]</pre>
     <li><a href="https://en.wikipedia.org/wiki/Worked-example_effect">Worked-example effect</a> and expertise reversal (overview); <a href="https://dl.acm.org/doi/full/10.1145/3732791">worked examples with self-explanation in programming</a> (ACM, 2025).</li>
     <li>Bisra et al. (2018), <a href="https://gwern.net/doc/psychology/spaced-repetition/2018-bisra.pdf">Inducing self-explanation: a meta-analysis</a>; <a href="https://www.researchgate.net/publication/357603991_Prompting_for_Free_Self-Explanations_Promotes_Better_Code_Comprehension">self-explanation vs prediction in code comprehension</a>.</li>
     <li>Mayer's multimedia principle, via secondary summaries: <a href="https://www.structural-learning.com/post/dual-coding-a-teachers-guide">Dual coding: a teacher's guide</a>. Low confidence on exact figures.</li>
+    <li>Check questions (added 2026-11-27): Crouch, Fagen, Callan, Mazur (2004), <a href="https://www.otffeo.on.ca/wp-content/uploads/sites/2/2014/11/Mazur_demo-article.pdf">Classroom demonstrations: learning tools or entertainment?</a> (read in full); Rowland (2014), <a href="https://doi.org/10.1037/a0037559">The effect of testing versus restudy on retention</a> (numbers not re-checked in the paper body); Rosenshine (2012), <a href="https://www.aft.org/sites/default/files/Rosenshine.pdf">Principles of instruction</a>; Shen &amp; Tamkin (2026), <a href="https://www.anthropic.com/research/AI-assistance-coding-skills">How AI assistance impacts the formation of coding skills</a> (read in full). Full list with confidence labels: <code>docs/research/2026-11-notes/learning-questions.md</code>.</li>
     <li>Project facts on this page come from the repository: <code>.github/workflows/ci.yml</code>, <code>Makefile</code>, <code>docs/roadmap.md</code>, and checks run in steps 0.1–1.3.</li>
   </ul>
 </section>

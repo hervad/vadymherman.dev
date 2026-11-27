@@ -5,7 +5,8 @@ AlmaLinux 10 VPS behind Caddy, provisioned with Ansible, deployed by GitHub Acti
 The repo itself is a DevOps/SRE portfolio piece, so the infrastructure matters as much as the site.
 
 Big picture: @docs/architecture.md
-Work plan and progress: @docs/roadmap.md
+Work plan and progress: docs/roadmap.md. It is not loaded automatically (it grows every session):
+read it before planning, when a step number comes up, and at the start of /next.
 
 ## How to work with Kai
 
@@ -19,8 +20,12 @@ Work plan and progress: @docs/roadmap.md
   If something you said earlier was wrong, say so explicitly and correct it.
 - **After each step**, add the concepts you explained to docs/learning-log.md (1–3 lines each). These
   become blog post material later.
-- **Learning loop** (global CLAUDE.md): map → worked example → Kai predicts → run and compare →
-  explain back → recall next session → fade the help. The project's big map and its one analogy
+- **Learning loop** (global CLAUDE.md): map → worked example → show, then one check question →
+  Kai picks a prediction from 2–3 options → run and compare → explain back → recall next session →
+  fade the help. Questions follow the question rules there (explain or show first, one idea per
+  question, the answer always follows). Recall questions and their status live in
+  docs/recall-queue.md; why it works this way: docs/research/2026-11-practices-review.md.
+  The project's big map and its one analogy
   (the site as a restaurant) live in docs/field-guide.html; keep it current when parts change.
 
 ## Commands
@@ -29,7 +34,7 @@ Work plan and progress: @docs/roadmap.md
 - `make serve`: local preview with drafts at http://localhost:1313
 - `make check`: strict build (warnings fail) + i18n key check + page sizes. Run before saying "done".
 - `make ansible-check`: dry run of the server playbook (asks permission; touches a real server)
-- Custom commands: /next, /explain, /review, /checkpoint, /new-post, /decision
+- Skills (.claude/skills/): /next, /explain, /review, /checkpoint, /new-post, /decision
 
 ## Hard rules
 

@@ -40,7 +40,7 @@ flowchart LR
 | `infra/ansible/` | Server provisioning and hardening |
 | `.github/workflows/` | CI (build/check), deploy from step 1.4 |
 | `docs/` | This file, field guide (big map + learning loop), roadmap, decisions (ADRs), research, design spec + lab, content guide, runbooks |
-| `.claude/` | Claude Code permissions and custom slash commands |
+| `.claude/` | Claude Code permissions and skills (the project's slash commands) |
 
 ## Decisions
 
