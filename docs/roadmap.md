@@ -2,7 +2,8 @@
 
 One step per session. `/next` picks the first unchecked step. Each step lists what it delivers,
 what you learn, and how we know it's done. Steps marked **(you)** are things only you can do
-(payments, accounts, writing); Claude prepares a checklist and waits.
+(payments, accounts); Claude prepares a checklist and waits. Texts: Claude may write them, you
+review and approve before publishing.
 
 "Research fixes" sub-bullets come from docs/research/2026-10-stack-review.md (details and sources there).
 
@@ -88,15 +89,15 @@ what you learn, and how we know it's done. Steps marked **(you)** are things onl
     and bump when the Caddy role (copr module) is written.
 - [ ] **1.4 Deploy pipeline.** Deploy job in GitHub Actions: build → precompress (brotli, gzip) →
   rsync to releases/<sha>/ → atomic symlink switch → smoke test (build SHA meta tag) → keep last 5
-  - Learn: atomic renames, why symlink switching avoids half-deployed sites, least privilege.
   releases. Separate manual "rollback" workflow. Restricted deploy key (rrsync), pinned host key.
+  - Learn: atomic renames, why symlink switching avoids half-deployed sites, least privilege.
   - Done when: a push to main is live in < 2 min, and a rollback is tested once.
   - Research fixes: forced-command wrapper for `activate <sha>` (rrsync can't flip symlinks;
     `mv -Tf` a temp link); reconcile deploy permissions with inventory/group_vars/all/vars.yml (deploy_user);
     `rsync -c --link-dest`; protected `production` environment, `cancel-in-progress: false`.
   - Refresh 2026-11-27: rrsync is its own package, `rsync-rrsync` (`/usr/bin/rrsync` on
     Fedora 44); confirm on the lab with `rpm -ql rsync-rrsync` before writing the forced command.
-- [ ] **1.5 Real content. (you write, Claude edits)** Home intro, About, hand-written Projects page
+- [ ] **1.5 Real content. (Claude writes, you review and approve)** Home intro, About, hand-written Projects page
   (3–5 projects: problem → approach → result), first real post. Delete hello-world.
 - [ ] **1.6 Security headers + SEO.** CSP (hashes for inline scripts), HSTS, Open Graph/Twitter
   meta, JSON-LD (Person, BlogPosting), sitemap check, robots.txt.

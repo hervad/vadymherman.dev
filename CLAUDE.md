@@ -46,8 +46,9 @@ Work plan and progress: @docs/roadmap.md
   inline snippets (theme init). CSS stays inlined while under ~14 KB.
 - Every user-facing string goes through `{{ i18n "key" }}` with the key added to **every**
   i18n file: en.toml, uk.toml and pl.toml (English is the default; ADR 0010).
-- Content rules: @docs/content-guide.md. Don't write Kai's posts or About page for him; suggest
-  structure and edit his drafts.
+- Content rules: @docs/content-guide.md. Claude may write posts and the About page; Kai is the
+  reviewer: he must understand, review and agree to every text before it is published
+  (`draft: false`). Keep drafts as `draft: true` until he explicitly approves.
 - Infrastructure: Ansible must stay idempotent (2nd run = changed=0). SELinux stays enforcing; fix
   labels, never disable it. Never run playbooks, ssh, rsync or git push without asking.
   Roles read facts as `ansible_facts['...']`; injected `ansible_*` fact variables are off in ansible.cfg.

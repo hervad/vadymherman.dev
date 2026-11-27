@@ -38,7 +38,8 @@ Lowercase English slugs in both languages. Allowed list (ask before adding new o
 
 ## Writing
 
-- Kai writes the posts; Claude suggests structure, edits for clarity, checks technical accuracy.
+- Claude may write posts; Kai is the reviewer: he must understand, review and agree to every post
+  before it is published. Posts stay `draft: true` until Kai explicitly approves them.
 - Polish text is reviewed by Kai, never published as raw machine translation.
 - Code blocks always have a language (```bash, ```yaml) for highlighting.
 - Every image needs meaningful alt text.

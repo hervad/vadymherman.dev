@@ -23,13 +23,17 @@ the hostname stayed `localhost` (cloud-init didn't apply it); the `base` role se
 virsh -c qemu:///system start vh-lab        # boot (about 20 s)
 virsh -c qemu:///system domifaddr vh-lab    # its IP address
 virsh -c qemu:///system shutdown vh-lab     # clean shutdown
-ssh -i ~/.ssh/vadymherman_vps -o IdentitiesOnly=yes almalinux@192.168.122.176
+ssh -i ~/.ssh/vadymherman_vps -o IdentitiesOnly=yes kai@192.168.122.176
 
 cd infra/ansible
-ansible -i inventory/local.yml vh-lab -m ansible.builtin.ping -e ansible_user=almalinux   # → "pong"
+ansible vh-lab -m ansible.builtin.ping                  # lab is the default inventory → "pong"
+ansible-playbook playbooks/site.yml --check --diff      # dry run as kai (sudo password from the vault)
 ```
 
-`-e ansible_user=almalinux` is needed only until the `users_ssh` role has created `kai`.
+Since `users_ssh` ran (2026-10-10), only `kai` (and later `deploy`) may log in; `almalinux` is refused.
+Ansible needs `infra/ansible/.vault_pass` (the vault password, also in KeePassXC) to decrypt
+`secrets.vault.yml`. After a **reset**, the fresh VM only has `almalinux` again: run the playbook
+once with `-e ansible_user=almalinux` (phase 1), then without it (phase 2), then once more (`changed=0`).
 
 ## How it was built (and how to rebuild it)
 
