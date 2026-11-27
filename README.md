@@ -17,6 +17,18 @@ make serve   # http://localhost:1313
 make check   # strict build, the same one CI runs
 ```
 
+## Upgrading tools
+
+Hugo and Pagefind are pinned in `versions.env`: a version plus the SHA-256 of each download.
+
+1. On a branch, read the release notes of every version skipped, then change the version in
+   `versions.env`.
+2. `make tool-hashes` prints the new SHA-256 lines; paste them into `versions.env`.
+3. `make tools` installs the new binary and refuses it if the hash differs.
+4. `make check` builds with `--panicOnWarning`, so a deprecation reported by the new version
+   fails the build instead of scrolling past.
+5. Review the diff and merge.
+
 ## Status
 
 Work is tracked in [docs/roadmap.md](docs/roadmap.md).

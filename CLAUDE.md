@@ -35,6 +35,7 @@ Work plan and progress: @docs/roadmap.md
 
 - Hugo version is pinned in versions.env. Always use `./.bin/hugo` (via make), never a system hugo.
   Use current Hugo APIs: config key `label` (not `languageName`), `hugo.Data` (not `.Site.Data`),
+  `.Title`/`.Date`/`.Description` (not `.Params.title` etc.), `.IsBranch` (not `.IsNode`),
   partials live in `layouts/_partials/`. `make check` fails on any deprecation warning, but some
   deprecations exist only in the docs and never warn (e.g. `site.Language.Lang`): on every Hugo
   upgrade, read the release notes for each version skipped and grep layouts/ for what they mention.
@@ -49,6 +50,7 @@ Work plan and progress: @docs/roadmap.md
   structure and edit his drafts.
 - Infrastructure: Ansible must stay idempotent (2nd run = changed=0). SELinux stays enforcing; fix
   labels, never disable it. Never run playbooks, ssh, rsync or git push without asking.
+  Roles read facts as `ansible_facts['...']`; injected `ansible_*` fact variables are off in ansible.cfg.
 - Secrets: never read, print or commit them. Ansible secrets only via ansible-vault (*.vault.yml).
 - Non-trivial technical choices get an ADR in docs/decisions/ (use /decision).
 

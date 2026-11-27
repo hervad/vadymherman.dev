@@ -80,6 +80,12 @@ what you learn, and how we know it's done. Steps marked **(you)** are things onl
     Next: piece 3 = `firewall` (firewalld: ssh, http, https, http3/UDP 443).
   - Open issues: lab IP comes from DHCP (may change after a reset); lab reset is documented,
     not scripted; the VPS gets `base` only in piece 6.
+  - Refresh 2026-11-27: `ansible.cfg` now sets `inject_facts_as_vars = False`; the next lab dry
+    run must show `base` and `users_ssh` still pass. DNS has no DS, CAA or AAAA record
+    (`dig +short DS vadymherman.dev` is empty): enable DNSSEC in the Cloudflare dashboard **(you)**.
+    Check which Caddy the COPR gives EL10 (`dnf info caddy`; upstream is 2.11.9).
+    community.general 14.0.1 is out (pinned: 13.5.0, a major jump): read its "Removed Features"
+    and bump when the Caddy role (copr module) is written.
 - [ ] **1.4 Deploy pipeline.** Deploy job in GitHub Actions: build → precompress (brotli, gzip) →
   rsync to releases/<sha>/ → atomic symlink switch → smoke test (build SHA meta tag) → keep last 5
   - Learn: atomic renames, why symlink switching avoids half-deployed sites, least privilege.
@@ -88,6 +94,8 @@ what you learn, and how we know it's done. Steps marked **(you)** are things onl
   - Research fixes: forced-command wrapper for `activate <sha>` (rrsync can't flip symlinks;
     `mv -Tf` a temp link); reconcile deploy permissions with inventory/group_vars/all/vars.yml (deploy_user);
     `rsync -c --link-dest`; protected `production` environment, `cancel-in-progress: false`.
+  - Refresh 2026-11-27: rrsync is its own package, `rsync-rrsync` (`/usr/bin/rrsync` on
+    Fedora 44); confirm on the lab with `rpm -ql rsync-rrsync` before writing the forced command.
 - [ ] **1.5 Real content. (you write, Claude edits)** Home intro, About, hand-written Projects page
   (3–5 projects: problem → approach → result), first real post. Delete hello-world.
 - [ ] **1.6 Security headers + SEO.** CSP (hashes for inline scripts), HSTS, Open Graph/Twitter
@@ -112,14 +120,21 @@ what you learn, and how we know it's done. Steps marked **(you)** are things onl
     falls back to the system font (seen in a test build on 2026-10-10).
 - [ ] **2.2 GitHub projects data.** scripts/fetch_github.py (build-time, GITHUB_TOKEN, fail-soft)
   → data/github/repos.json; data/projects.yaml for curated EN/PL blurbs; daily scheduled build.
+  - Refresh 2026-11-27: GitHub disables scheduled workflows in a public repo after 60 days
+    without repository activity; plan a keep-alive or accept re-enabling by hand.
 - [ ] **2.3 Images.** Markdown image render hook: AVIF/WebP/JPEG `<picture>`, srcset, width/height,
   lazy loading. Auto-generated Open Graph images per post.
 - [ ] **2.4 Search.** Pagefind index after build, loaded only when the search box is focused or `/`
   is pressed; per-language results.
+  - Refresh 2026-11-27: pinned at 1.6.0 (no breaking changes from 1.5.2); read the release
+    notes of the then-current version before building.
 - [ ] **2.5 Comments.** giscus via GitHub Discussions, injected only when scrolled near or clicked;
   `comments: false` front matter switch. Plus a "reply by email" link (0 KB).
+  - To verify before building (not checked yet): giscus maintenance status.
 - [ ] **2.6 Analytics.** GoatCounter as a systemd service (new Ansible role) behind Caddy on
   stats.<domain>; cookieless; privacy page EN/PL; GoAccess report from Caddy logs.
+  - To verify before writing the privacy page (not checked yet): PKE art. 399 and UKE guidance,
+    from a primary source.
 - [ ] **2.7 CI quality gates.** HTML validation, lychee link checks (internal on PRs, external
   weekly), Lighthouse CI with byte budgets. `make check` reports gzip/brotli sizes, not raw bytes.
 
@@ -128,6 +143,7 @@ what you learn, and how we know it's done. Steps marked **(you)** are things onl
 - [ ] **3.1 Monitoring node.** Second small VPS: Uptime Kuma (rootless Podman + Quadlet), public
   status page, TLS-expiry and downtime alerts.
 - [ ] **3.2 Metrics.** Caddy metrics + node_exporter → Prometheus/Grafana (or Grafana Cloud free).
+  - Refresh 2026-11-27: enable metrics with Caddy's global `metrics` option (the documented form).
 - [ ] **3.3 Backups.** restic for /etc, Caddy data, GoatCounter DB; restore tested and documented.
 - [ ] **3.4 SLOs + runbooks.** docs/slo.md (99.9 %, p95 TTFB), runbooks: site down, cert failure,
   disk full, rollback.
