@@ -14,6 +14,7 @@
   },
   "editor.rulers": [100],
   "cSpell.language": "en,pl",
+  "cSpell.words": ["buildsha"],
   "[markdown]": {
     "editor.wordWrap": "on",
     "editor.quickSuggestions": { "other": false, "comments": false, "strings": false }

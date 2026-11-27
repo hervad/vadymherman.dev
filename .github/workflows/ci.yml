@@ -27,11 +27,9 @@ jobs:
           persist-credentials: false   # the build never pushes, so don't leave a token in .git/config
           fetch-depth: 0               # full history: Hugo's git dates ("Updated") need every commit, not just the last
 
-      # $GITHUB_ENV accepts only NAME=value lines; a "# comment" line fails the job.
-      - name: Load pinned tool versions
-        run: grep -E '^[A-Za-z_][A-Za-z0-9_]*=' versions.env >> "$GITHUB_ENV"
-
-      - name: Install Hugo ${{ env.HUGO_VERSION }}
+      # The script reads the pinned version and SHA-256 from versions.env itself and prints
+      # the version it installed, so the workflow needs no copy of those values.
+      - name: Install pinned Hugo
         run: ./scripts/install-tools.sh
 
       - name: Strict build + checks
