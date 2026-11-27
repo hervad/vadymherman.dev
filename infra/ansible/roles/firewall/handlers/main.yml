@@ -1,2 +1,2 @@
-# Handlers for the firewall role (e.g. restart sshd), triggered with notify:.
+# No handlers: every rule is applied with "immediate: true", so nothing has to be reloaded.
 []

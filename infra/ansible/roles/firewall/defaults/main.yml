@@ -1,2 +1,19 @@
-# Default variables for the firewall role (lowest precedence; override in group_vars).
-{}
+# Default variables for the firewall role (lowest precedence; override in inventory/group_vars).
+# Names are firewalld services, not port numbers. List them all on a server with:
+#   firewall-cmd --get-services        what a name means:  firewall-cmd --info-service=http3
+
+# The zone every rule goes into. "public" is firewalld's default zone: a network interface
+# that isn't assigned to any other zone lands here.
+firewall_zone: public
+
+# Doors that stay open. Everything not listed here (and not opened by default) is refused.
+firewall_services_open:
+  - ssh      # 22/tcp   admin logins and CI deploys; key only (users_ssh role). Decided 2026-11-27: open to all.
+  - http     # 80/tcp   only to redirect visitors to https, and for certificate checks
+  - https    # 443/tcp  the site over HTTP/1.1 and HTTP/2
+  - http3    # 443/udp  the site over HTTP/3 (QUIC runs on UDP, so it needs its own door)
+
+# Doors firewalld opens by default that this server doesn't need.
+# dhcpv6-client is left alone on purpose: it may be how the VPS gets its IPv6 address.
+firewall_services_closed:
+  - cockpit  # 9090/tcp web admin console; not installed here, and it logs in by password

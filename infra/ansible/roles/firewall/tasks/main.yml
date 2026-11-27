@@ -1,6 +1,44 @@
-# Role: firewall (roadmap step 1.3)
-# Purpose: firewalld enabled; allow ssh, http, https and 443/udp (HTTP/3); everything else closed.
-# Status: SKELETON. Claude implements this with you in step 1.3; see docs/roadmap.md.
-- name: "firewall | not implemented yet"
-  ansible.builtin.debug:
-    msg: "Role firewall is a skeleton. Implement it in roadmap step 1.3."
+# Role: firewall (roadmap step 1.3, piece 3)
+# The bricked-up windows: firewalld runs, and only the doors listed in defaults/main.yml are open.
+# Order matters: firewalld's default zone already allows ssh, so starting it never cuts our own
+# connection; the other doors are opened only after it runs.
+
+- name: "firewall | Install firewalld"
+  # The AlmaLinux cloud image ships without a firewall. state: present installs it once.
+  ansible.builtin.dnf:
+    name: firewalld
+    state: present
+  register: firewall_package_result   # remembered so the next tasks know if this was a fresh install
+
+- name: "firewall | Start firewalld now and at every boot"
+  # enabled = starts at boot, started = running now. Until it runs, no rule below has any effect.
+  ansible.builtin.systemd_service:
+    name: firewalld
+    enabled: true
+    state: started
+  # In a dry run (--check) nothing is really installed, so on a fresh server there is no firewalld
+  # to start or to ask. Skip only that case (same pattern as the timer task in the base role).
+  when: not (ansible_check_mode and firewall_package_result is changed)
+
+- name: "firewall | Open the doors this server needs"
+  # One call per service. permanent = written to disk, survives a reboot;
+  # immediate = also applied to the running firewall, so no reload is needed.
+  ansible.posix.firewalld:
+    zone: "{{ firewall_zone }}"
+    service: "{{ item }}"
+    state: enabled
+    permanent: true
+    immediate: true
+  loop: "{{ firewall_services_open }}"
+  when: not (ansible_check_mode and firewall_package_result is changed)
+
+- name: "firewall | Close the default doors this server doesn't need"
+  # state: disabled removes the service from the zone; if it isn't there, the task reports "ok".
+  ansible.posix.firewalld:
+    zone: "{{ firewall_zone }}"
+    service: "{{ item }}"
+    state: disabled
+    permanent: true
+    immediate: true
+  loop: "{{ firewall_services_closed }}"
+  when: not (ansible_check_mode and firewall_package_result is changed)

@@ -79,8 +79,18 @@ review and approve before publishing.
     SSH access and NOPASSWD sudo). Verified: almalinux and password logins refused, kai works,
     run 3 `changed=0`. Vault password in `infra/ansible/.vault_pass` (600, gitignored) + KeePassXC.
     Next: piece 3 = `firewall` (firewalld: ssh, http, https, http3/UDP 443).
+  - Piece 3 done on the lab (2026-11-27): `firewall` installs firewalld (2.4.3 on AlmaLinux
+    10.2), starts and enables it; zone `public` has `ssh`, `http`, `https`, `http3` (443/udp)
+    plus the default `dhcpv6-client`; the default `cockpit` door is removed. Decided: SSH open
+    to all addresses, key only (CI deploys come from changing addresses); `dhcpv6-client` stays
+    until the VPS's IPv6 setup is known; no Cockpit on the VPS. Dry run on the fresh VM:
+    `changed=1 skipped=3`; real run `changed=4`; second run `changed=0`. From the desktop:
+    22 connects, 80 "connection refused" (open, nothing listens yet), 9090 "no route to host"
+    (rejected by firewalld). Next: piece 4 = `selinux`.
   - Open issues: lab IP comes from DHCP (may change after a reset); lab reset is documented,
-    not scripted; the VPS gets `base` only in piece 6.
+    not scripted; the VPS gets `base` only in piece 6. The firewall role assumes the default
+    zone is `public` and does not set it: check `firewall-cmd --get-default-zone` on the VPS
+    in piece 6.
   - Refresh 2026-11-27: `ansible.cfg` now sets `inject_facts_as_vars = False`; the lab dry run
     the same day passed (`ok=16 changed=0 failed=0`). DNSSEC was enabled in Cloudflare on
     2026-11-27 and the DS record is pending (up to two days; check `dig +short DS vadymherman.dev`).
