@@ -1,6 +1,35 @@
-# Role: selinux (roadmap step 1.3)
-# Purpose: SELinux enforcing; semanage fcontext httpd_sys_content_t for site_root; restorecon.
-# Status: SKELETON. Claude implements this with you in step 1.3; see docs/roadmap.md.
-- name: "selinux | not implemented yet"
-  ansible.builtin.debug:
-    msg: "Role selinux is a skeleton. Implement it in roadmap step 1.3."
+# Role: selinux (roadmap step 1.3, piece 4)
+# The staff-only rooms: SELinux stays enforcing, and it learns one rule of ours:
+# everything under site_root is web content.
+# A rule alone labels nothing: a new folder inherits the label of its parent (/srv is var_t),
+# whether it is made by mkdir or by Ansible's file module (tested on the lab, 2026-11-27).
+# So the last task re-applies the rules on every run and reports "changed" only if it had to.
+
+- name: "selinux | Keep SELinux enforcing"
+  # A guard, not a change: the image ships enforcing. If someone ever sets it to permissive
+  # or disabled, the next run puts it back (and says so with "changed").
+  ansible.posix.selinux:
+    policy: "{{ selinux_policy }}"
+    state: enforcing
+
+- name: "selinux | Label the site root as web content"
+  # The same as:  semanage fcontext -a -t httpd_sys_content_t '/srv/site(/.*)?'
+  # The pattern means "the folder itself and everything below it".
+  # This only records the rule; existing files keep their label until restorecon runs.
+  community.general.sefcontext:
+    target: "{{ site_root }}(/.*)?"
+    setype: "{{ selinux_site_type }}"
+    state: present
+
+- name: "selinux | Repair labels under the site root"
+  # restorecon compares every file's label with the recorded rules and fixes the ones that
+  # differ (-R = everything below, -v = print each file it changes).
+  # removes: skip while the folder doesn't exist (the caddy role creates it).
+  ansible.builtin.command:
+    cmd: restorecon -R -v {{ site_root }}
+    removes: "{{ site_root }}"
+  register: selinux_restorecon_result
+  # restorecon prints "Relabeled <file> from … to …" for each file it fixes. Looking for that
+  # word, not for "any output": when the folder is missing, Ansible's own note
+  # "skipped, since … does not exist" lands in stdout too, and it is not a change.
+  changed_when: "'Relabeled' in selinux_restorecon_result.stdout"

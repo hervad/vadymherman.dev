@@ -1,2 +1,3 @@
-# Handlers for the selinux role (e.g. restart sshd), triggered with notify:.
+# No handlers: labels are checked and repaired by a task on every run, not only when the
+# rule changes (a handler missed folders created after the rule was already recorded).
 []

@@ -87,6 +87,16 @@ review and approve before publishing.
     `changed=1 skipped=3`; real run `changed=4`; second run `changed=0`. From the desktop:
     22 connects, 80 "connection refused" (open, nothing listens yet), 9090 "no route to host"
     (rejected by firewalld). Next: piece 4 = `selinux`.
+  - Piece 4 done on the lab (2026-11-27): `selinux` keeps the mode enforcing (a guard; the
+    image ships enforcing), records the rule `/srv/site(/.*)?` → `httpd_sys_content_t`, and
+    repairs labels under the site root on every run (`restorecon`, `changed` only when a file
+    was relabelled). Found by testing: a rule alone labels nothing; a new folder inherits its
+    parent's label (`var_t` under `/srv`) whether made by `mkdir` or by Ansible's `file`
+    module, so the first design (relabel only when the rule changes) was replaced. Tested in
+    three states: no folder `ok`, wrong labels `changed`, correct labels `ok`.
+    For piece 5: the caddy role runs after this role, so it must create the site folders with
+    the label already set (`setype` on the `file` task); otherwise the first run on a fresh
+    server leaves them `var_t` until the next run. Next: piece 5 = `caddy`.
   - Open issues: lab IP comes from DHCP (may change after a reset); lab reset is documented,
     not scripted; the VPS gets `base` only in piece 6. The firewall role assumes the default
     zone is `public` and does not set it: check `firewall-cmd --get-default-zone` on the VPS

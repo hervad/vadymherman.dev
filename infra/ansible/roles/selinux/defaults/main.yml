@@ -1,2 +1,10 @@
-# Default variables for the selinux role (lowest precedence; override in group_vars).
-{}
+# Default variables for the selinux role (lowest precedence; override in inventory/group_vars).
+
+# The policy AlmaLinux ships: "targeted" confines network-facing services (sshd, web servers)
+# and leaves ordinary user sessions alone.
+selinux_policy: targeted
+
+# The label for everything under site_root. httpd_sys_content_t means "static web content":
+# a web server may read it and may not write it. See what a path would get with:
+#   matchpathcon /srv/site/releases/abc/index.html
+selinux_site_type: httpd_sys_content_t
