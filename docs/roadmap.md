@@ -97,6 +97,25 @@ review and approve before publishing.
     For piece 5: the caddy role runs after this role, so it must create the site folders with
     the label already set (`setype` on the `file` task); otherwise the first run on a fresh
     server leaves them `var_t` until the next run. Next: piece 5 = `caddy`.
+  - Piece 5 done on the lab (2026-11-27): `caddy` enables the `@caddy/caddy` COPR (chroot set
+    to `epel-10-x86_64`; the module's own guess `almalinux-10.2` gets a 404 from COPR), installs
+    Caddy 2.11.9, creates `site_root/releases/placeholder/en/` with the web-content label at
+    creation, points `current` at it only when no `current` exists, writes the Caddyfile through
+    `caddy validate`, reloads on change, starts and enables the service. Lab certificates come
+    from Caddy's private authority (`caddy_tls_internal`, ADR 0011); updates are by hand
+    (`-e caddy_upgrade=true`). Tested from the desktop with `curl --resolve`: 308 from HTTP,
+    302 `/` → `/en/`, 200 over HTTP/2 and HTTP/3, 301 from www and both .com names, own 404
+    page, security headers everywhere, `no-cache` for pages, one year for `/fonts/`. Caddy runs
+    confined (`httpd_t`). Final run `changed=0`. Found by testing: the default cache rule does
+    not reach error responses (repeated in `handle_errors`); `caddy validate` as root created
+    a private authority in `/root` (now sent to `/run` with `XDG_DATA_HOME`). Access log goes
+    to the journal (`TODO(2.6)`). `community.general` bumped to 14.0.1 (changelog read, lab dry
+    run `changed=0`). Next: piece 6 = the real VPS.
+  - For piece 6: add the DNS records for `www` and both `.com` names before the first run on
+    the VPS (Caddy asks for a certificate per name and retries on failure); choose the issuer
+    and add the matching CAA record; check on the lab whether `dnf-automatic` really skips COPR
+    packages; the Caddy tasks' dry-run path on a server without Caddy (`stat` guard) was written
+    but not exercised, the lab needs a reset for that.
   - Open issues: lab IP comes from DHCP (may change after a reset); lab reset is documented,
     not scripted; the VPS gets `base` only in piece 6. The firewall role assumes the default
     zone is `public` and does not set it: check `firewall-cmd --get-default-zone` on the VPS
@@ -105,9 +124,8 @@ review and approve before publishing.
     the same day passed (`ok=16 changed=0 failed=0`). DNSSEC was enabled in Cloudflare on
     2026-11-27 and the DS record is pending (up to two days; check `dig +short DS vadymherman.dev`).
     Still no CAA or AAAA record.
-    Check which Caddy the COPR gives EL10 (`dnf info caddy`; upstream is 2.11.9).
-    community.general 14.0.1 is out (pinned: 13.5.0, a major jump): read its "Removed Features"
-    and bump when the Caddy role (copr module) is written.
+    Done in piece 5: the COPR gives EL10 Caddy 2.11.9 (same as upstream); community.general is
+    pinned at 14.0.1.
   - Practices review 2026-11-27 (docs/research/2026-11-practices-review.md): in the caddy role,
     use `caddy validate` as the template task's `validate:` (same pattern as `sshd -t`); at the
     wrap-up, add a `verify.yml` with asserts and script the lab reset.
@@ -140,6 +158,10 @@ review and approve before publishing.
     preloaded).
 - [ ] **1.7 Launch.** Launch checklist (links, 404, RSS validates, mobile check), announce.
   Write the first ADR-based post: "Why Hugo + Caddy + AlmaLinux".
+  - Decide before launch (open since 2026-11-27): Hugo `timeZone`. Unset, a post dated
+    `2026-10-07` is published at 00:00 UTC; with `timeZone = "Europe/Warsaw"` the feed's
+    `pubDate` becomes 00:00 +0200. Visible dates don't change. Cheap to choose now, awkward
+    after feed readers have seen the old timestamps.
   - Nice-to-have: speculation rules (prefetch on hover); view transitions under
     `prefers-reduced-motion: no-preference`.
 

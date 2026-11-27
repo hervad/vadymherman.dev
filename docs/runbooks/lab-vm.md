@@ -35,6 +35,31 @@ Ansible needs `infra/ansible/.vault_pass` (the vault password, also in KeePassXC
 `secrets.vault.yml`. After a **reset**, the fresh VM only has `almalinux` again: run the playbook
 once with `-e ansible_user=almalinux` (phase 1), then without it (phase 2), then once more (`changed=0`).
 
+## Test the web server on the lab
+
+The lab answers under the real name with a certificate from Caddy's own private authority
+(ADR 0011). Two things make `curl` on the desktop accept that: the lab's root certificate
+(public, not a secret) and `--resolve`, which points the name at the lab for one command.
+
+```bash
+cd infra/ansible
+# copy the lab's root certificate to the desktop (-b = as root; flat = no host subfolder)
+ansible vh-lab -b -m ansible.builtin.fetch -a \
+  "src=/var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt dest=/tmp/lab-root.crt flat=yes"
+
+# -D - prints the response headers, -o /dev/null drops the page itself
+curl -sS -D - -o /dev/null --cacert /tmp/lab-root.crt \
+  --resolve vadymherman.dev:443:192.168.122.176 https://vadymherman.dev/en/
+# the same over HTTP/3 only (UDP 443)
+curl -sS -o /dev/null -w '%{http_code} HTTP/%{http_version}\n' --http3-only --cacert /tmp/lab-root.crt \
+  --resolve vadymherman.dev:443:192.168.122.176 https://vadymherman.dev/en/
+
+ansible vh-lab -b -m ansible.builtin.command -a "journalctl -u caddy -n 20 --no-pager"   # Caddy's log
+```
+
+After a lab reset Caddy makes a new private authority: fetch the root certificate again.
+Upgrade Caddy on purpose (lab first): `ansible-playbook playbooks/site.yml -e caddy_upgrade=true`.
+
 ## How it was built (and how to rebuild it)
 
 **1. Image, verified twice.** AlmaLinux signs its checksum list; the signing key ships in Fedora's

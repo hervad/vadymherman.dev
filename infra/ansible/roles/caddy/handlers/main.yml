@@ -1,2 +1,8 @@
-# Handlers for the caddy role (e.g. restart sshd), triggered with notify:.
-[]
+# Handlers for the caddy role, triggered with notify: and run once, at the end of the play.
+
+- name: Reload caddy
+  # reload = Caddy reads the new Caddyfile and switches to it without dropping open
+  # connections. If the new file cannot be loaded, Caddy keeps running with the old one.
+  ansible.builtin.systemd_service:
+    name: caddy
+    state: reloaded

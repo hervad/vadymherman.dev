@@ -6,3 +6,7 @@ all:
     vh-lab:
       ansible_host: 192.168.122.176
       ansible_user: kai                 # until users_ssh has run: -e ansible_user=almalinux
+      # The lab has no public name, so Let's Encrypt cannot reach it: Caddy signs the lab's
+      # certificates with its own private authority instead (ADR 0011). Test with:
+      #   curl --resolve vadymherman.dev:443:<lab address> --cacert <lab root certificate> ...
+      caddy_tls_internal: true

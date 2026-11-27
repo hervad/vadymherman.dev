@@ -3,5 +3,5 @@
 collections:
   - name: ansible.posix       # firewalld, selinux booleans, authorized_key, synchronize
     version: "==2.2.2"
-  - name: community.general   # copr module (for the Caddy package), misc helpers
-    version: "==13.5.0"
+  - name: community.general   # copr (Caddy's package repo), sefcontext, ini_file, timezone
+    version: "==14.0.1"

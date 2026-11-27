@@ -1,27 +1,21 @@
 # {{ ansible_managed }}
-# DRAFT from the research report. Reviewed and finalized in step 1.3e.
-# Content-Security-Policy is added in step 1.6, once we know every script the site uses.
+# House rules for Caddy. Source: infra/ansible/roles/caddy/templates/Caddyfile.j2
+# Content-Security-Policy comes in step 1.6, once every script the site uses is known.
+# Access log: the systemd journal (journalctl -u caddy). TODO(2.6): decide file vs journal for GoAccess.
 {
+{% if caddy_tls_internal %}
+	# Lab only: certificates signed by Caddy's own private authority.
+	# skip_install_trust: do not try to add that authority to the server's trust store.
+	local_certs
+	skip_install_trust
+{% else %}
+	# Contact address the certificate authority may use (for example expiry warnings).
 	email {{ site_admin_email }}
+{% endif %}
 }
 
-www.{{ site_domain }} {
-	redir https://{{ site_domain }}{uri} permanent
-}
-
-{{ site_domain }} {
-	root * {{ site_root }}/current
-
-	# Serve the .br / .zst / .gz files CI built ahead of time (no CPU per request),
-	# fall back to on-the-fly compression for anything else.
-	file_server {
-		precompressed br zstd gzip
-	}
-	encode zstd gzip
-
-	@fingerprinted path_regexp \.[0-9a-f]{16,}\.(css|js|woff2|avif|webp|jpg|png|svg)$
-	header @fingerprinted Cache-Control "public, max-age=31536000, immutable"
-
+# Headers for every response, error pages and redirects included.
+(security_headers) {
 	header {
 		Strict-Transport-Security "max-age=63072000; includeSubDomains"
 		X-Content-Type-Options "nosniff"
@@ -30,16 +24,59 @@ www.{{ site_domain }} {
 		Cross-Origin-Opener-Policy "same-origin"
 		-Server
 	}
+}
 
-	handle_errors {
+# Other names people may type: send them to the one real address and keep the path.
+{{ caddy_redirect_domains | join(', ') }} {
+	import security_headers
+	redir https://{{ site_domain }}{uri} permanent
+}
+
+{{ site_domain }} {
+	import security_headers
+	root * {{ site_root }}/current
+
+	# There is no page at "/": every language has its own folder. Temporary (302) on purpose:
+	# browsers remember a permanent redirect, and step 2.1 may choose the language here.
+	redir / /en/
+
+	# Caching, default: ask the server every time. A deploy is visible at once, and an
+	# unchanged page is answered with "304 Not Modified" and no body.
+	# The "?" means: only if nothing below has set Cache-Control already.
+	header ?Cache-Control "no-cache"
+
+	# Files whose address changes whenever their content changes may be kept for a year.
+	# "file" = only when the file exists, so a mistyped address is not remembered for a year.
+	@immutable {
+		path_regexp \.[0-9a-f]{16,}\.(css|js|woff2|avif|webp|jpg|png|svg)$
+		file
+	}
+	header @immutable Cache-Control "public, max-age=31536000, immutable"
+
+	# Fonts have no hash in their address. A changed font must get a new address
+	# (for example /fonts/v2/), or browsers keep the old file for the whole year.
+	@fonts {
+		path /fonts/*
+		file
+	}
+	header @fonts Cache-Control "public, max-age=31536000, immutable"
+
+	# Send the .br / .zst / .gz files CI builds ahead of time (step 1.4);
+	# compress on the fly only when no such file exists.
+	encode zstd gzip
+	file_server {
+		precompressed br zstd gzip
+	}
+
+	# A missing page gets the site's own 404 page, still with status 404.
+	# The cache rule is repeated here: the default above does not reach error responses
+	# (tested on the lab), and without it browsers guess how long to keep an error page.
+	handle_errors 404 {
+		import security_headers
+		header Cache-Control "no-cache"
 		rewrite * /en/404.html
 		file_server
 	}
 
-	log {
-		output file /var/log/caddy/{{ site_domain }}.json {
-			roll_keep 14
-		}
-		format json
-	}
+	log
 }

@@ -45,4 +45,5 @@ flowchart LR
 ## Decisions
 
 See `docs/decisions/`. Current: 0001 Hugo, 0002 Caddy, 0003 AlmaLinux, 0004 OVHcloud Warsaw (superseded),
-0005 no CDN at launch, 0006 pinned tool checksums, 0007 licensing, 0008 OVHcloud Beauharnois, 0009 self-hosted fonts, 0010 languages.
+0005 no CDN at launch, 0006 pinned tool checksums, 0007 licensing, 0008 OVHcloud Beauharnois, 0009 self-hosted fonts, 0010 languages,
+0011 Caddy lab certificates and updates.

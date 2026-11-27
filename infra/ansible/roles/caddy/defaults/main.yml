@@ -1,2 +1,29 @@
-# Default variables for the caddy role (lowest precedence; override in group_vars).
-{}
+# Default variables for the caddy role (lowest precedence; override in inventory/group_vars).
+
+# COPR project that publishes the Caddy RPM (the Caddy team's own builds, newer than EPEL's).
+caddy_copr_project: "@caddy/caddy"
+
+# Which of the project's builds to use. AlmaLinux installs the "epel-<major>" builds.
+# Set here because the copr module's own guess is "almalinux-10.2-x86_64", and COPR answers
+# 404 for that name (checked 2026-11-27); the module falls back to EPEL only for rhel/centos.
+caddy_copr_chroot: "epel-{{ ansible_facts['distribution_major_version'] }}-{{ ansible_facts['architecture'] }}"
+
+# Upgrades are deliberate (ADR 0011): a normal run never upgrades Caddy. To upgrade, lab first:
+#   ansible-playbook playbooks/site.yml -e caddy_upgrade=true
+caddy_upgrade: false
+
+# SELinux label given to the site folders at the moment they are created. Must be the same
+# type the selinux role records for site_root (selinux_site_type). If the two ever differ,
+# the selinux role's restorecon task reports "changed" on the next run, which exposes it.
+caddy_site_setype: httpd_sys_content_t
+
+# false = certificates from a public authority (production).
+# true  = Caddy's own private authority; only the lab inventory sets this.
+caddy_tls_internal: false
+
+# Other names that only redirect to site_domain. Each needs a DNS record pointing at the
+# server before Caddy can get a certificate for it (roadmap 1.3, piece 6).
+caddy_redirect_domains:
+  - "www.{{ site_domain }}"
+  - vadymherman.com
+  - www.vadymherman.com
