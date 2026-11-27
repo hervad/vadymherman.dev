@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
     "allow": [
       "Bash(make serve)",
@@ -12,7 +13,20 @@
       "Bash(git status)",
       "Bash(git diff:*)",
       "Bash(git log:*)",
-      "Bash(ansible-playbook playbooks/site.yml --syntax-check)"
+      "Bash(ansible-playbook playbooks/site.yml --syntax-check)",
+      "Bash(dig *)",
+      "Bash(dnf5 repoquery *)",
+      "Bash(rpm -q*)",
+      "Bash(ansible-config *)",
+      "Bash(ansible-doc *)",
+      "WebSearch",
+      "WebFetch(domain:code.claude.com)",
+      "WebFetch(domain:docs.ansible.com)",
+      "WebFetch(domain:galaxy.ansible.com)",
+      "WebFetch(domain:pypi.org)",
+      "WebFetch(domain:docs.github.com)",
+      "WebFetch(domain:caddyserver.com)",
+      "WebFetch(domain:gohugo.io)"
     ],
     "ask": [
       "Bash(git commit:*)",
@@ -32,6 +46,10 @@
       "Read(./**/.env)",
       "Read(./infra/ansible/.vault_pass)",
       "Read(./infra/ansible/**/*.vault.yml)",
+      "Read(/.env)",
+      "Read(/**/.env)",
+      "Read(/infra/ansible/.vault_pass)",
+      "Read(/infra/ansible/**/*.vault.yml)",
       "Read(~/.ssh/**)"
     ]
   }

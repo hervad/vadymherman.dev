@@ -1,5 +1,7 @@
 ---
+name: decision
 description: Record an Architecture Decision Record (ADR)
+disable-model-invocation: true
 ---
 Write an ADR for: $ARGUMENTS
 

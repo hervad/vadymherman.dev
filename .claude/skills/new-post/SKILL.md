@@ -1,5 +1,7 @@
 ---
+name: new-post
 description: Scaffold a new blog post as a draft page bundle
+disable-model-invocation: true
 ---
 Create a new draft blog post. Topic/title: $ARGUMENTS
 
