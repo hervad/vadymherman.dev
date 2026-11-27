@@ -22,8 +22,8 @@ serve: ## Local preview with drafts at http://localhost:1313
 build: ## Production build into ./public
 	$(HUGO) --minify --gc --cleanDestinationDir
 
-check: ## Strict build: any Hugo warning (deprecations, missing templates) fails
-	$(HUGO) --minify --gc --cleanDestinationDir --panicOnWarning
+check: ## Strict build: any Hugo warning (deprecations, missing templates, missing i18n keys) fails
+	$(HUGO) --minify --gc --cleanDestinationDir --panicOnWarning --printI18nWarnings --printPathWarnings
 	@python3 scripts/check-i18n.py
 	@./scripts/fetch-fonts.sh --verify
 	@echo "Page weights (bytes, uncompressed):"
